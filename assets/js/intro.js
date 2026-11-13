@@ -87,14 +87,16 @@ export function runIntro({ tasks = [], logos = Promise.resolve([]), startAfter =
     for (let i = bubbles.length - 1; i >= 0; i--) if (bubbles[i].dead) bubbles.splice(i, 1);
   }
 
+  let wall0 = 0;
   async function begin() {
     // the page sets itself up first, while the screen is still a plain cream (so no frame of the pour ever stutters)
     await Promise.race([startAfter, new Promise(r => setTimeout(r, 1400))]).catch(() => {});
-    last = performance.now(); raf = requestAnimationFrame(frame);
+    last = wall0 = performance.now(); raf = requestAnimationFrame(frame);
   }
   function frame(now) {
     raf = requestAnimationFrame(frame);
-    const dt = clamp((now - last) / 1000, .001, .05); last = now;
+    const dt = clamp((now - last) / 1000, .001, .1); last = now;
+    if (now - wall0 > 12000) skip = true;   // a very slow device never waits more than a few seconds past the pour
     clock += dt * (skip && phase === 'fill' ? 4 : 1);
     const t = clock, ready = done >= total;
     g.setTransform(D, 0, 0, D, 0, 0);
