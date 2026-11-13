@@ -1,6 +1,24 @@
-// JUICE: the router (/, /launch), the nav (X, the phone menu) and smooth scroll
-import { $, config, reduced } from './core.js';
+// JUICE: the intro, the router (/, /launch), the nav (X, the phone menu) and smooth scroll
+import { $, config, reduced, stocks } from './core.js';
 import { smooth, scrollTo, ScrollTrigger, gsap } from './motion.js';
+
+// ---------------------------------------------------------------- the intro: juice pours in while the real things load
+(() => {
+  const el = document.getElementById('jintro');
+  const home = (location.pathname.replace(/\/+$/, '') || '/') === '/';
+  const want = el && home && !reduced() && !/[?&]shot\b/.test(location.search);
+  if (!want) { document.documentElement.classList.remove('intro'); if (el) el.remove(); window.__intro = Promise.resolve(); return; }
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
+  const list = stocks().catch(() => []);
+  const box = import('./box3d.js?v=2').catch(() => null);
+  const fonts = document.fonts ? Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 2500))]) : Promise.resolve();
+  const logos = list.then(l => l.filter(s => s.mint).slice(0, 10).map((s, i) => ({ mint: s.mint, ticker: s.ticker, lev: [2, 3, 5, 10, 20].filter(x => x <= (s.maxLev || 3))[(i * 2 + 1) % [2, 3, 5, 10, 20].filter(x => x <= (s.maxLev || 3)).length] })));
+  window.__intro = import('./intro.js?v=2').then(m => m.runIntro({
+    tasks: [[fonts, null], [list, l => l.length ? l.length + ' stock perps · live from Hyperliquid' : null], [box, b => b ? 'the box is ready' : null]],
+    logos,
+  })).catch(() => { document.documentElement.classList.remove('intro'); if (el) el.remove(); });
+})();
 
 const homeEl = $('#home'), appEl = $('#app'), nav = $('#nav');
 let homeReady = null;
@@ -15,7 +33,7 @@ async function route(push) {
     ScrollTrigger.getAll().forEach(t => t.disable(false));
     scrollTo(0, { immediate: true });
     appEl.innerHTML = '';
-    (await import('./launch.js?v=1')).launch(appEl);
+    (await import('./launch.js?v=2')).launch(appEl);
     document.title = 'JUICE';
     return;
   }
@@ -30,7 +48,7 @@ async function route(push) {
   if (sec && /^#[a-z]+$/.test(sec) && $(sec)) setTimeout(() => scrollTo(sec, { immediate: !push, offset: -10 }), push ? 50 : 300);
 }
 async function startHome() {
-  const H = await import('./home.js?v=1');
+  const H = await import('./home.js?v=2');
   await H.home();
 }
 
@@ -71,4 +89,5 @@ document.addEventListener('error', e => {
 }, true);
 
 smooth();
+if (document.documentElement.classList.contains('intro') && window.__lenis) { __lenis.stop(); window.__intro.then(() => { __lenis.start(); ScrollTrigger.refresh(); }); }
 route(false);

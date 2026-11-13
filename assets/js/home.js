@@ -40,12 +40,13 @@ async function startPC() {
   const cv = $('#pc');
   try {
     if (!window.WebGLRenderingContext) throw new Error('no webgl');
-    const mod = await import('./box3d.js?v=1');
+    const mod = await import('./box3d.js?v=2');
+    await (window.__intro || Promise.resolve());
     PC = mod.start({ canvas: cv, lite: /[?&]shot\b/.test(location.search) });
     if (LIST.length) feedBox(LIST);
-    if (!RM) gsap.fromTo(cv, { opacity: 0, scale: .94, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 1.2, ease: 'expo.out' }); else gsap.set(cv, { opacity: 1 });
+    if (!RM) gsap.fromTo(cv, { opacity: 0, y: -60 }, { opacity: 1, y: 0, duration: 1.1, ease: 'bounce.out', onStart: () => setTimeout(() => PC && PC.squeeze(), 650) }); else gsap.set(cv, { opacity: 1 });
     setTimeout(() => $('#sqHint').classList.add('on'), 2600);
-  } catch (e) { cv.replaceWith(Object.assign(document.createElement('img'), { src: '/assets/img/pfp.webp', className: 'pc-fallback', alt: '' })); PC = null; }
+  } catch (e) { cv.replaceWith(Object.assign(document.createElement('img'), { src: '/assets/img/favicon-512.png', className: 'pc-fallback', alt: '' })); PC = null; }
 }
 function feedBox(list) {
   if (!PC) return;
@@ -92,7 +93,7 @@ function orbitIn() {
       const y = Math.max(o.minY, Math.min(o.maxY - o.sz, o.cy + Math.sin(a) * o.ry * o.r + Math.sin(t * 1.3 + o.ph) * 6 + MY * 30 * o.z - o.sz / 2)) - scrollY * (.15 + o.z * .25);
       o.el.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`;
       const back = Math.sin(a) < 0; o.el.style.zIndex = back ? 1 : 3;
-      o.el.classList.toggle('bh', back && Math.abs(x + o.sz / 2 - o.cx) < (isMobile() ? 92 : 150));
+      o.el.classList.toggle('bh', (back || isMobile()) && Math.abs(x + o.sz / 2 - o.cx) < (isMobile() ? 92 : 150));
     }
   });
 }
@@ -128,6 +129,7 @@ on('stocks', ({ list, prev }) => {
   if (VIEW === 'map') drawMap(false);
   SPOT.refresh(list);
   SHELF.tick();
+  TODAY.update(list);
 });
 
 // ---------------------------------------------------------------- 01 how it works: the phone plays the four steps
@@ -308,11 +310,11 @@ const SPOT = (() => {
 function tilt(root) {
   if (RM || isTouch) return;
   root.addEventListener('pointermove', e => {
-    const c = e.target.closest('.sk2, .ft, .vs-col, .sbox'); if (!c) return;
+    const c = e.target.closest('.sk2, .ft, .vs-col, .sbox, .td-c'); if (!c) return;
     const r = c.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
     c.style.transform = `perspective(700px) rotateY(${(x * 9).toFixed(2)}deg) rotateX(${(-y * 9).toFixed(2)}deg) translateY(-4px)`;
   });
-  root.addEventListener('pointerout', e => { const c = e.target.closest('.sk2, .ft, .vs-col, .sbox'); if (c && !c.contains(e.relatedTarget)) c.style.transform = ''; });
+  root.addEventListener('pointerout', e => { const c = e.target.closest('.sk2, .ft, .vs-col, .sbox, .td-c'); if (c && !c.contains(e.relatedTarget)) c.style.transform = ''; });
 }
 
 // 02 why: the two columns come in row by row
@@ -492,6 +494,149 @@ const SHELF = (() => {
   return { setup, tick, render };
 })();
 
+// ---------------------------------------------------------------- hero: pulp and bubbles rising behind everything
+function bubbles() {
+  const cv = $('#bub'); if (!cv || RM) return;
+  const g = cv.getContext('2d'); let W = 0, H = 0, D = 1, vis = true, last = 0;
+  const size = () => { D = Math.min(1.5, devicePixelRatio || 1); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * D | 0; cv.height = H * D | 0; };
+  size(); addEventListener('resize', size);
+  new IntersectionObserver(([e]) => vis = e.isIntersecting).observe(cv);
+  const B = Array.from({ length: isMobile() ? 18 : 34 }, () => ({ x: Math.random(), y: Math.random(), r: 2 + Math.random() * 9, v: .015 + Math.random() * .04, p: Math.random() * 6, z: .3 + Math.random() * .7, ring: Math.random() < .55 }));
+  gsap.ticker.add(() => {
+    const now = performance.now(); if (!vis || document.hidden || now - last < 33) return; const dt = Math.min(.1, (now - (last || now)) / 1000); last = now;
+    g.setTransform(D, 0, 0, D, 0, 0); g.clearRect(0, 0, W, H);
+    const t = now / 1000;
+    for (const b of B) {
+      b.y -= b.v * dt * (1 + b.z); if (b.y < -.05) { b.y = 1.05; b.x = Math.random(); }
+      const x = b.x * W + Math.sin(t * .9 + b.p) * 14 * b.z + MX * -40 * b.z, y = b.y * H + MY * -30 * b.z, r = b.r * b.z;
+      g.beginPath(); g.arc(x, y, r, 0, 7);
+      if (b.ring) { g.strokeStyle = `rgba(255,255,255,${.22 * b.z})`; g.lineWidth = 1.6; g.stroke(); } else { g.fillStyle = `rgba(255,255,255,${.14 * b.z})`; g.fill(); }
+    }
+  });
+}
+
+// ---------------------------------------------------------------- 02 the squeeze: one box, pinned and scrubbed by the scroll
+const SQZ = (() => {
+  const TOP = 200, BOT = 540, L = { v: 0 }, G = { v: 0 }, ST = { head: 0, tail: 0 };
+  let gain = null, mk = null, tl = null, vis = false;
+  const lq = () => $('#sqzLq'), wave = () => $('#sqzWave');
+  function draw(t = performance.now() / 1000) {
+    const y = BOT - (BOT - TOP) * L.v; if (!lq()) return;
+    lq().setAttribute('y', y.toFixed(1));
+    let d = `M100 ${y + 6}`; for (let x = 100; x <= 372; x += 9) d += ` L${x} ${(y + Math.sin(t * 2.4 + x / 26) * 5 * (L.v > .02 ? 1 : 0)).toFixed(1)}`;
+    wave().setAttribute('d', d + ` L372 ${y + 8} L100 ${y + 8}Z`);
+    const top = -30 + ST.tail * 234, bot = -30 + ST.head * 234, sm = $('#sqzStream');
+    sm.setAttribute('y', top.toFixed(1)); sm.setAttribute('height', Math.max(0, bot - top).toFixed(1));
+  }
+  function step(p) {
+    const i = Math.min(3, Math.floor(p * 4.05));
+    $$('#sqzSteps li').forEach((li, j) => li.classList.toggle('on', j === i));
+    $('#sqzBar').style.transform = `scaleX(${p.toFixed(3)})`;
+    $('#sqzTag').textContent = ['fees → margin', 'margin → position', mk ? `${mk.ticker} ${pct(mk.chg24)} today` : 'the stock moves', 'profit → buy back → burn'][i];
+  }
+  function init() {
+    if (!$('#squeeze')) return;
+    draw();
+    new IntersectionObserver(([e]) => vis = e.isIntersecting).observe($('#squeeze'));
+    if (!RM) gsap.ticker.add(() => { if (vis) draw(); });
+    if (RM) { L.v = .6; draw(); gsap.set(['#sqzChip', '#sqzGain', '#sqzBurn span'], { autoAlpha: 1 }); return; }
+    gsap.set(['#sqzChip', '#sqzGain'], { autoAlpha: 0 }); gsap.set('#sqzBurn span', { autoAlpha: 0, y: 10 });
+    const drops = $$('#sqzDrops circle'); gsap.set(drops, { attr: { cx: 398, cy: 34 }, autoAlpha: 0 });
+    tl = gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: '#squeeze', start: 'top top', end: () => '+=' + Math.round(innerHeight * (isMobile() ? 2.2 : 2.6)), pin: true, scrub: .7, anticipatePin: 1, invalidateOnRefresh: true, onUpdate: s => step(s.progress) } });
+    tl.to(ST, { head: 1, duration: .35, ease: 'power1.in' }, 0)
+      .to(L, { v: .5, duration: .95 }, .25)
+      .to(ST, { tail: 1, duration: .3, ease: 'power1.in' }, 1.15)
+      .to('#sqzChip', { autoAlpha: 1, duration: .25 }, 1.35).fromTo('#sqzChip', { y: 24, scale: .9 }, { y: 0, scale: 1, duration: .35, ease: 'back.out(2.2)' }, 1.35)
+      .to('#sqzChart', { strokeDashoffset: 0, duration: 1.05 }, 2.0)
+      .to(L, { v: .86, duration: 1.05 }, 2.0)
+      .to('#sqzGain', { autoAlpha: 1, duration: .2 }, 2.0)
+      .to(G, { v: 1, duration: 1.05, onUpdate: () => { $('#sqzPct').textContent = gain == null ? '—' : pct(gain * G.v, 1); } }, 2.0)
+      .to('#sqzBox', { scaleY: .86, scaleX: 1.07, svgOrigin: '235 540', duration: .22, ease: 'power2.in' }, 3.1)
+      .to('#sqzBox', { scaleY: 1, scaleX: 1, svgOrigin: '235 540', duration: .4, ease: 'elastic.out(1,.4)' }, 3.32)
+      .to(L, { v: .5, duration: .45, ease: 'power2.out' }, 3.12);
+    drops.forEach((c, i) => {
+      const tx = 470 + i * 38, ty = 560;
+      tl.to(c, { autoAlpha: 1, duration: .05 }, 3.14 + i * .045)
+        .to(c, { attr: { cx: tx }, duration: .5, ease: 'none' }, 3.14 + i * .045)
+        .to(c, { keyframes: [{ attr: { cy: -10 - i * 6 }, duration: .2, ease: 'power1.out' }, { attr: { cy: ty }, duration: .3, ease: 'power2.in' }] }, 3.14 + i * .045)
+        .to(c, { autoAlpha: 0, duration: .08 }, 3.62 + i * .045);
+    });
+    $$('#sqzBurn span').forEach((b, i) => tl.to(b, { autoAlpha: 1, y: 0, duration: .18, ease: 'back.out(2)' }, 3.5 + i * .17));
+    tl.to({}, { duration: .3 });
+  }
+  // the story uses today's real biggest mover among the busiest markets: long if it rose, short if it fell
+  async function setList(list) {
+    if (!$('#squeeze')) return;
+    const pool = featured(list).filter(s => s.mint && s.chg24 != null).slice(0, 16);
+    mk = pool.slice().sort((a, b) => Math.abs(b.chg24) - Math.abs(a.chg24))[0] || null;
+    if (!mk) return;
+    const lev = levs(mk).filter(x => x <= 5).pop() || 2, side = mk.chg24 >= 0 ? 'long' : 'short';
+    gain = lev * Math.abs(mk.chg24);
+    $('#sqzLg').innerHTML = lg(mk); $('#sqzPos').textContent = `${side.toUpperCase()} ${mk.ticker} ${lev}x`;
+    $('#sqzGl').textContent = `${mk.ticker} ${pct(mk.chg24)} · ${lev}x ${side}`;
+    $('#sqzOpen').textContent = `This box: a ${lev}x ${side} on ${mk.name}, today's biggest mover among the busiest markets on Hyperliquid.`;
+    $('#sqzMove').textContent = `${mk.ticker} moved ${pct(mk.chg24)} in 24 hours. At ${lev}x ${side}, that is ${pct(gain, 1)} on the box.`;
+    const r = await api.get('chart', { c: mk.coin, tf: '24h' }).catch(() => null);
+    const pts = r && r.pts && r.pts.length > 3 ? r.pts : null, path = $('#sqzChart');
+    if (!pts) return;
+    const ys = pts.map(p => p[1]), lo = Math.min(...ys), hi = Math.max(...ys), X = i => 410 + i / (pts.length - 1) * 320, Y = v => 400 - (v - lo) / ((hi - lo) || 1) * 230;
+    let d = `M${X(0).toFixed(1)} ${Y(ys[0]).toFixed(1)}`; for (let i = 1; i < pts.length; i++) d += ` L${X(i).toFixed(1)} ${Y(ys[i]).toFixed(1)}`;
+    path.setAttribute('d', d);
+    const len = path.getTotalLength(); path.style.strokeDasharray = len; path.style.strokeDashoffset = tl ? len * (1 - Math.min(1, Math.max(0, (tl.time() - 2) / 1.05))) : 0;
+    if (tl) { tl.invalidate(); tl.scrollTrigger && tl.scrollTrigger.refresh(); }
+  }
+  return { init, setList };
+})();
+
+// ---------------------------------------------------------------- 05 today: a box on every busy market, opened at yesterday's price
+const TODAY = (() => {
+  let lev = 5, side = 'long', list = [], shown = false;
+  const BOX = (id, col) => `<svg viewBox="0 0 120 170" aria-hidden="true"><defs><clipPath id="t${id}"><rect x="14" y="40" width="92" height="124" rx="9"/></clipPath></defs><path d="M86 40V6l18-4" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><rect x="14" y="40" width="92" height="124" rx="9" fill="rgba(42,22,9,.22)" stroke="#fff" stroke-width="5"/><g clip-path="url(#t${id})"><rect class="lq" x="10" y="164" width="100" height="130" fill="${col}"/></g></svg>`;
+  function calc(s) {
+    if (!s.prev || !s.price) return null;
+    const L = Math.min(lev, s.maxLev || lev), r = (s.price / s.prev - 1) * (side === 'short' ? -1 : 1), dist = Math.max(.001, 1 / L - mmrOf(s));
+    const spilled = r <= -dist;
+    return { L, r, pnl: L * r * 100, spilled, lvl: spilled ? 0 : Math.max(.03, Math.min(1, .5 * (1 + r / dist))), left: spilled ? 0 : (dist + r) * 100 };
+  }
+  const pick = () => featured(list).filter(s => s.prev).slice(0, isMobile() ? 12 : 16);
+  function render(animate) {
+    const grid = $('#tdGrid'); if (!grid) return;
+    const rows = pick().map(s => ({ s, c: calc(s) })).filter(x => x.c).sort((a, b) => b.c.pnl - a.c.pnl);
+    if (!rows.length) { grid.innerHTML = '<p class="muted">No prices right now: Hyperliquid did not answer.</p>'; return; }
+    grid.innerHTML = rows.map(({ s, c }, i) => {
+      const st = c.spilled ? 'sp' : c.pnl > 0 ? 'up' : 'dn', col = st === 'up' ? '#ffd23f' : '#ffb37a';
+      return `<button class="td-c ${st}" type="button" data-id="${esc(s.id)}"><span class="td-svg">${BOX('d' + i, col)}<span class="sb-lg">${lg(s)}</span></span>
+        <span class="td-t"><b>${esc(s.ticker)}</b><span class="chg ${chgClass(s.chg24)}">${pct(s.chg24)}</span></span>
+        <span class="td-r"><b>${pct(c.pnl, 1)}</b><em>${st === 'up' ? 'squeezed · burn' : st === 'sp' ? 'spilled · refills' : c.left.toFixed(1) + '% to a spill'}</em></span>
+        <span class="td-l mono">${c.L}x ${side}${c.L < lev ? ' · max' : ''}</span></button>`;
+    }).join('');
+    const lqs = $$('.lq', grid);
+    rows.forEach(({ c }, i) => { const y = 164 - 124 * c.lvl; if (animate && !RM) gsap.fromTo(lqs[i], { attr: { y: 164 } }, { attr: { y }, duration: 1.3, ease: 'power3.out', delay: .15 + i * .04 }); else lqs[i].setAttribute('y', y.toFixed(1)); });
+    if (animate && !RM) gsap.fromTo($$('.td-c', grid), { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: .6, ease: 'power3.out', stagger: .035 });
+    const up = rows.filter(r => !r.c.spilled && r.c.pnl > 0), sp = rows.filter(r => r.c.spilled), dn = rows.length - up.length - sp.length;
+    countTo($('#tdUp'), up.length, { dur: .8 }); countTo($('#tdDn'), dn, { dur: .8 }); countTo($('#tdSp'), sp.length, { dur: .8 });
+    const b = rows[0]; $('#tdBest').innerHTML = b && b.c.pnl > 0 ? `${lg(b.s)}${esc(b.s.ticker)} ${pct(b.c.pnl, 1)}` : '—';
+    $('#tdNote').textContent = `${rows.length} busiest markets · opened at yesterday's price (24h ago) · spill = maintenance margin, half of max leverage · math on live prices, not a promise`;
+  }
+  function update(l) {
+    list = l; if (!shown) return;
+    const grid = $('#tdGrid'); if (!grid) return;
+    const map = new Map(pick().map(s => [s.id, s]));
+    $$('.td-c', grid).forEach(el => { const s = map.get(el.dataset.id); if (!s) return; const c = calc(s); if (!c) return; el.querySelector('.td-r b').textContent = pct(c.pnl, 1); const ch = el.querySelector('.chg'); ch.textContent = pct(s.chg24); ch.className = 'chg ' + chgClass(s.chg24); gsap.to(el.querySelector('.lq'), { attr: { y: 164 - 124 * c.lvl }, duration: .9, ease: 'power2.out' }); });
+  }
+  function init() {
+    const sec = $('#today'); if (!sec) return;
+    $('#tdLev').onclick = e => { const b = e.target.closest('button'); if (!b) return; lev = +b.dataset.l; $$('#tdLev button').forEach(x => x.classList.toggle('on', x === b)); render(true); };
+    $('#tdSide').onclick = e => { const b = e.target.closest('button'); if (!b) return; side = b.dataset.s; $$('#tdSide button').forEach(x => x.classList.toggle('on', x === b)); render(true); };
+    $('#tdGrid').onclick = e => { const c = e.target.closest('.td-c'); if (c) openStock(c.dataset.id); };
+    tilt($('#tdGrid'));
+    ScrollTrigger.create({ trigger: '#tdGrid', start: 'top 88%', once: true, onEnter: () => { shown = true; if (list.length) render(true); } });
+    let vis = false; new IntersectionObserver(([e]) => vis = e.isIntersecting).observe(sec);
+    setInterval(() => { if (vis && !document.hidden) stocks(true).catch(() => {}); }, 15000);
+  }
+  return { init, update, setList(l) { list = l; if (shown) render(true); } };
+})();
+
 // the dice: a random market, straight into a launch
 function surprise(listP) {
   $('#surprise').addEventListener('click', async () => {
@@ -513,12 +658,12 @@ function pour(cv) {
   const g = cv.getContext('2d'), P = 6, W = cv.width / P | 0, H = cv.height / P | 0;
   const BOX = ['...............SS...', '..............SS....', '.............SS.....', '.............S......', '.............S......', '.............S......', '.....TTTTTTTTSTTTT..', '....TTTTTTTTTTTTTT..', '...############DDD..', '...############DDD..', '...############DDD..', '...#######GG###DDD..', '...######G#####DDD..', '...####OOOO####DDD..', '...###OwOOOO###DDD..', '...###OOOOOO###DDD..', '...###OOOOOO###DDD..', '...###OOOOOO###DDD..', '...####OOOO####DDD..', '...############DDD..', '...############DDD..', '...############DDD..', '...############DDD..', '...############DD...'];
   const COL = { S: '#ffffff', T: '#fff1df', '#': '#ffffff', D: '#ffd9b8', O: '#ff6f12', w: '#ffc48a', G: '#2fbf5b' };
-  const S = 2, ox = (W - 20 * S) / 2 + 6 | 0, oy = 6, drops = [], splash = [];
+  const S = 3, ox = (W - 20 * S) / 2 - 4 | 0, oy = 8, drops = [], splash = [];
   let t0 = 0, vis = false, puddle = 0, squeeze = 0;
   new IntersectionObserver(([e]) => vis = e.isIntersecting).observe(cv);
   const px2 = (x, y, c) => { g.fillStyle = c; g.fillRect(x * P, y * P, P, P); };
   const cell = (x, y) => BOX[y] && BOX[y][x] && BOX[y][x] !== '.';
-  const tipX = ox + 15 * S + 1, tipY = oy + 1;
+  const tipX = ox + 15 * S + 2, tipY = oy + 1;
   cv.addEventListener('pointerdown', () => { squeeze = 1; for (let i = 0; i < 6; i++) drops.push({ x: tipX + 2, y: tipY, vx: .6 + Math.random() * .8, vy: -1.4 - Math.random(), v: 0 }); });
   function frame(now) {
     requestAnimationFrame(frame);
@@ -573,7 +718,7 @@ function megaIn() { if (!RM) gsap.from('.mega span', { yPercent: 70, opacity: 0,
 function navWatch() {
   const nav = $('#nav'), links = $$('.links a');
   const setOn = a => links.forEach(l => l.classList.toggle('on', l === a));
-  ['#how', '#stocks', '#split', '#live', '#juice', '#faq'].forEach(id => ScrollTrigger.create({ trigger: id, start: 'top 55%', end: 'bottom 55%', onToggle: s => { if (s.isActive) setOn(links.find(l => l.getAttribute('href') === '/' + id)); } }));
+  ['#how', '#stocks', '#today', '#live', '#juice', '#faq'].forEach(id => ScrollTrigger.create({ trigger: id, start: 'top 55%', end: 'bottom 55%', onToggle: s => { if (s.isActive) setOn(links.find(l => l.getAttribute('href') === '/' + id)); } }));
   ScrollTrigger.create({ trigger: '#hero', start: 'top top', end: 'bottom 55%', onToggle: s => { if (s.isActive) setOn(null); } });
   let last = 0;
   ScrollTrigger.create({ start: 0, end: 'max', onUpdate: s => { const y = s.scroll(); nav.classList.toggle('scrolled', y > 40); if (Math.abs(y - last) > 6) { nav.classList.toggle('hide', y > last && y > innerHeight * .6); last = y; } } });
@@ -581,8 +726,8 @@ function navWatch() {
 
 export async function home() {
   const listP = stocks().catch(() => []);
-  hero(); startPC(); orbitIn();
-  how(); why(); stocksSec(); split(); faq(); megaIn(); drops(); tilt($('.feats'));
+  hero(); startPC(); bubbles(); (window.__intro || Promise.resolve()).then(orbitIn);
+  how(); why(); stocksSec(); split(); faq(); megaIn(); drops(); tilt($('.feats')); SQZ.init(); TODAY.init();
   revealAll($('#home'));
   magnetic();
   navWatch();
@@ -591,7 +736,7 @@ export async function home() {
     LIST = list;
     $('#nStocks').textContent = list.length || '—';
     feedBox(list);
-    orbit(list); tape(list); drawStocks(true); SPOT.setList(list); SHELF.setup(list); await calc(list).catch(e => console.error(e));
+    orbit(list); tape(list); drawStocks(true); SPOT.setList(list); SHELF.setup(list); SQZ.setList(list); TODAY.setList(list); await calc(list).catch(e => console.error(e));
     ScrollTrigger.refresh();
   });
   ScrollTrigger.refresh();

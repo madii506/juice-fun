@@ -15,7 +15,7 @@ export function smooth() {
 }
 export function scrollTo(target, opt = {}) {
   if (lenis) lenis.scrollTo(target, { offset: opt.offset ?? 0, duration: opt.duration ?? 1.4, easing: t => 1 - Math.pow(1 - t, 4), immediate: !!opt.immediate });
-  else { const el = typeof target === 'string' ? document.querySelector(target) : target; if (typeof target === 'number') scrollTo(0, target); else el && el.scrollIntoView({ behavior: opt.immediate ? 'auto' : 'smooth' }); }
+  else { const el = typeof target === 'string' ? document.querySelector(target) : target; if (typeof target === 'number') window.scrollTo(0, target); else el && el.scrollIntoView({ behavior: opt.immediate ? 'auto' : 'smooth' }); }
 }
 
 // wrap every word in a mask so it can rise into place
