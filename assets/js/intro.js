@@ -17,8 +17,12 @@ export function runIntro({ tasks = [], logos = Promise.resolve([]) } = {}) {
   tasks.forEach(([p, label]) => Promise.resolve(p).then(v => { done++; const t = typeof label === 'function' ? label(v) : label; if (t) line(t); }, () => { done++; }));
 
   // logo bubbles (real company logos from the menu)
-  const imgs = [];
-  logos.then(list => list.slice(0, 28).forEach(s => { const im = new Image(); im.onload = () => imgs.push({ im, tk: s.ticker }); im.src = '/api/logo?m=' + encodeURIComponent(s.mint); })).catch(() => {});
+  // the big names load at once (catalog mints), the rest of the live menu joins when it arrives
+  const PRE = ['XsDoVfqeBukxuZHWhdvWHBhgEHjGNst4MLodqsJHzoB', 'Xsc9qvGR1efVDFGLrVsmkzv3qi45LTBjeUKSPmx9qEh', 'XsbEhLAtcf6HdfpFZ5xEMdqW8nfAvcsP5bdudRLJzJp', 'XspzcW1PRtgf6Wj92HCiZdjzKCyFekVD8P5Ueh3dRMX', 'XsCPL9dNWBMvFtTmwcCA5v3xWPSMEBCszbQdiLLq6aN', 'Xs3eBt7uRfJX8QUs4suhyU8p2M6DoUDrJyWBa8LLZsg', 'Xsa62P5mvPszXL1krVUnU5ar38bBSVcWAB6fmPCo5Zu', 'XsEH7wWfJJu2ZT3UCFeVfALnVA6CP5ur7Ee11KmzVpL', 'AMD8XwJXgQ9WV45Wyj9yFLejxzf2J6VM1PJY8bJEjeES', 'Xs7ZdzSHLU9ftNJsii5fCeJhoRWSC32SQGzGQtePxNu', 'XsvNBAYkrDRNhA7wPHQfX3ZUXZyZLdnCQDfHZ56bzpg', 'XsP7xzNPvEHS1m6qfanPUGjNmdnmsLKEoNAnHjdxxyZ', 'XsueG8BtpquVJX9LVLLEGuViXUungE6WmK5YZ3p3bd1', 'XsoBhf2ufR8fTyNSjqfU71DYGaE6Z3SUGAidpzriAA4', 'MUxEsUKSMACyw5fZf68wxf5FLnZVhtU9CwH8uNNGay1', 'XshPgPdXFRWB8tP1j82rebb2Q9rPgGX37RuqzohmArM', 'PreweJYECqtQwBtpxHL171nL2K6umo692gTm7Q3rpgF', 'Pren1FvFX6J3E4kXhJuCiAD5aDmGEb7qJRncwA8Lkhw', 'Xs3oZwbHvqis4NYcf4YKWmEia2eC84wSiVrcYcTqpH8', 'SNDKbwMUQvZhnLnxLduradgLHG5KrPuKwpnrkkGRhfH', 'XsgSaSvNSqLTtFuyWPBhK9196Xb9Bbdyjj4fH3cPJGo', 'XsafvsGtzFqqHgTnA3aPC83EAMkacU5mcGtcSayhpVV', 'Xsf9mBktVB9BSU5kf4nHxPq5hCBJ2j2ui3ecFGxPRGc', 'Xsnuv4omNoHozR6EEW5mXkw8Nrny5rB3jVfLqi6gKMH', 'BABANGA4JE7Kkam4nTrALAwAVgsNJUuFJnnkF7S16BZp'];
+  const imgs = [], seen = new Set();
+  const load = mint => { if (!mint || seen.has(mint) || seen.size >= 40) return; seen.add(mint); const im = new Image(); im.decoding = 'async'; im.onload = () => imgs.push({ im }); im.src = '/api/logo?m=' + encodeURIComponent(mint); };
+  PRE.forEach(load);
+  logos.then(list => list.forEach(s => load(s.mint))).catch(() => {});
   const bubbles = [], dots = [], drops = [], fallers = [];
   let deck = [];
   const nextLogo = () => { if (!deck.length) deck = imgs.slice().sort(() => Math.random() - .5); return deck.pop(); };
@@ -54,9 +58,10 @@ export function runIntro({ tasks = [], logos = Promise.resolve([]) } = {}) {
     BOX.forEach((r, y) => { for (let x = 0; x < r.length; x++) { const ch = r[x]; if (ch === '.') continue; const inner = ch === 'O' || ch === 'w' || ch === 'G'; g.fillStyle = inner ? hole : ch === 'D' ? 'rgba(42,22,9,.12)' : color; if (inner && !hole) continue; g.fillRect(x0 + x * c, y0 + y * c, c + .5, c + .5); if (ch === 'D') { g.fillStyle = color; g.globalAlpha = a * .82; g.fillRect(x0 + x * c, y0 + y * c, c + .5, c + .5); g.globalAlpha = a; } } });
     g.restore();
   }
+  let lastNow = 0;
   function frame(now) {
     raf = requestAnimationFrame(frame);
-    const t = (now - t0) / 1000, ready = done / total;
+    const t = (now - t0) / 1000, ready = done / total, dt = Math.min(.05, Math.max(.004, (now - (lastNow || now - 16)) / 1000)); lastNow = now;
     g.setTransform(D, 0, 0, D, 0, 0);
     // the level: time-paced, never ahead of what has really loaded
     const k = Math.max(0, Math.min(1, (t - .7) / 2.2)), inout = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
@@ -76,7 +81,7 @@ export function runIntro({ tasks = [], logos = Promise.resolve([]) } = {}) {
       const sh = Math.min(surfY + 12, sy * (H + 20));
       g.fillStyle = OR; g.fillRect(sx - sw / 2, -10, sw, sh);
       g.fillStyle = 'rgba(255,255,255,.5)'; g.fillRect(sx - sw / 2 + 3, -10, 3, sh);
-      if (sy >= 1 && Math.random() < .75) for (let i = 0; i < 2; i++) drops.push({ x: sx, y: surfY, vx: (Math.random() - .5) * 260, vy: -120 - Math.random() * 260, r: 2 + Math.random() * 4 });
+      if (sy >= 1 && Math.random() < dt * 45) for (let i = 0; i < 2; i++) drops.push({ x: sx, y: surfY, vx: (Math.random() - .5) * 260, vy: -120 - Math.random() * 260, r: 2 + Math.random() * 4 });
     }
     // back wave, front wave
     g.fillStyle = OR2; wave(t, level, 140, 10); g.fill();
@@ -85,16 +90,15 @@ export function runIntro({ tasks = [], logos = Promise.resolve([]) } = {}) {
     g.save(); wave(t, level, 0, 0); g.clip();
     word('#ffffff', 0, sc, pop, OR);
     if (level > .12) {
-      if (Math.random() < .5 && dots.length < 70) dots.push({ x: Math.random() * W, y: H + 10, r: 1.5 + Math.random() * 4, v: 40 + Math.random() * 90, p: Math.random() * 6 });
-      if (imgs.length && Math.random() < .07 && bubbles.length < 24) { const r = R(); bubbles.push({ k: nextLogo(), x: W * (.06 + Math.random() * .88), y: H + r + 10, r, vy: -60, rise: -(70 + Math.random() * 90), p: Math.random() * 6 }); }
+      if (Math.random() < dt * 30 && dots.length < 70) dots.push({ x: Math.random() * W, y: H + 10, r: 1.5 + Math.random() * 4, v: 40 + Math.random() * 90, p: Math.random() * 6 });
+      if (imgs.length && Math.random() < dt * 6 && bubbles.length < 26) { const r = R(); bubbles.push({ k: nextLogo(), x: W * (.06 + Math.random() * .88), y: H + r + 10, r, vy: -60, rise: -(70 + Math.random() * 90), p: Math.random() * 6 }); }
     }
-    const dt = 1 / 60;
     for (const d of dots) { d.y -= d.v * dt; const x = d.x + Math.sin(t * 2 + d.p) * 6; g.beginPath(); g.arc(x, d.y, d.r, 0, 7); g.fillStyle = 'rgba(255,255,255,.32)'; g.fill(); if (d.y < surf(x, t, level) + 4) d.dead = true; }
     drawBubbles(t, dt, level, true);
     for (let i = dots.length - 1; i >= 0; i--) if (dots[i].dead) dots.splice(i, 1);
     g.restore();
     // logos raining in with the pour: they splash into the juice and float back up as bubbles
-    if (phase === 0 && sy >= 1 && imgs.length && level < .98 && fallers.length < 12 && Math.random() < .16) {
+    if (phase === 0 && sy >= 1 && imgs.length && level < .98 && fallers.length < 14 && Math.random() < dt * 12) {
       const r = R(), x = Math.random() < .35 ? sx + (Math.random() - .5) * 30 : W * (.06 + Math.random() * .88);
       fallers.push({ k: nextLogo(), x, y: -r - 10, vy: 120 + Math.random() * 220, r, spin: (Math.random() - .5) * .6 });
     }
@@ -116,7 +120,7 @@ export function runIntro({ tasks = [], logos = Promise.resolve([]) } = {}) {
     if (phase === 1) {
       const k = Math.min(1, (now - revealAt) / 650);
       g.fillStyle = OR; g.fillRect(0, 0, W, H);
-      drawBubbles(t, 1 / 60, 2, false);
+      drawBubbles(t, dt, 2, false);
       word('#ffffff', -k * H * .08, 1 + k * .18, 1 - k, OR);
       if (k >= 1) { cancelAnimationFrame(raf); el.remove(); removeEventListener('resize', size); }
     }

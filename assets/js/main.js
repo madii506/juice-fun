@@ -14,7 +14,7 @@ import { smooth, scrollTo, ScrollTrigger, gsap } from './motion.js';
   const box = import('./box3d.js?v=2').catch(() => null);
   const fonts = document.fonts ? Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 2500))]) : Promise.resolve();
   const logos = list.then(l => l.filter(s => s.mint).slice(0, 28).map((s, i) => ({ mint: s.mint, ticker: s.ticker, lev: [2, 3, 5, 10, 20].filter(x => x <= (s.maxLev || 3))[(i * 2 + 1) % [2, 3, 5, 10, 20].filter(x => x <= (s.maxLev || 3)).length] })));
-  window.__intro = import('./intro.js?v=3').then(m => m.runIntro({
+  window.__intro = import('./intro.js?v=4').then(m => m.runIntro({
     tasks: [[fonts, null], [list, l => l.length ? l.length + ' stock perps · live from Hyperliquid' : null], [box, b => b ? 'the box is ready' : null]],
     logos,
   })).catch(() => { document.documentElement.classList.remove('intro'); if (el) el.remove(); });
