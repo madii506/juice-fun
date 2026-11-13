@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="intro">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -18,22 +18,24 @@
 <link rel="apple-touch-icon" href="/assets/img/favicon-180.png?v=2">
 <link rel="preload" href="/assets/fonts/idisp-black.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="modulepreload" href="/assets/js/main.js?v=1">
+<link rel="modulepreload" href="/assets/js/main.js?v=2">
 <link rel="modulepreload" href="/assets/js/vendor-motion.js?v=1">
 <link rel="modulepreload" href="/assets/js/core.js">
 <link rel="modulepreload" href="/assets/js/motion.js">
-<link rel="modulepreload" href="/assets/js/home.js?v=1">
+<link rel="modulepreload" href="/assets/js/home.js?v=2">
 <link rel="modulepreload" href="/assets/js/drawer.js">
-<link rel="modulepreload" href="/assets/js/box3d.js?v=1">
-<link rel="stylesheet" href="/assets/css/app.css?v=1">
+<link rel="modulepreload" href="/assets/js/box3d.js?v=2">
+<link rel="modulepreload" href="/assets/js/intro.js?v=2">
+<link rel="stylesheet" href="/assets/css/app.css?v=2">
 </head>
 <body>
+<div id="jintro" aria-hidden="true"><canvas></canvas></div>
 
 
 <header id="nav">
   <a class="brand" href="/" data-link aria-label="JUICE home"><svg class="jb" viewBox="2 0 17 24" aria-hidden="true"><use href="#jbox"/></svg><span>juice</span></a>
   <nav class="links" aria-label="Sections">
-    <a href="/#how" data-sec>How it works</a><a href="/#stocks" data-sec>The menu</a><a href="/#split" data-sec>Concentrate</a><a href="/#live" data-sec>The shelf</a><a href="/#juice" data-sec>$JUICE</a><a href="/#faq" data-sec>FAQ</a>
+    <a href="/#how" data-sec>How it works</a><a href="/#stocks" data-sec>The menu</a><a href="/#today" data-sec>Today</a><a href="/#live" data-sec>The shelf</a><a href="/#juice" data-sec>$JUICE</a><a href="/#faq" data-sec>FAQ</a>
   </nav>
   <div class="nav-r">
     <a class="nbtn nx" id="navX" href="#" target="_blank" rel="noopener" aria-label="JUICE on X" hidden><svg viewBox="0 0 24 24"><path fill="currentColor" d="M17.8 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.3-8.3L2 3h6.4l4.4 5.8zm-1.1 16.2h1.7L7.4 4.7H5.6z"/></svg></a>
@@ -42,13 +44,14 @@
   </div>
 </header>
 <div class="msheet" id="mSheet" hidden>
-  <nav class="ms-links" aria-label="Sections"><a class="ml" href="/#how">How it works</a><a class="ml" href="/#stocks">The menu</a><a class="ml" href="/#split">Concentrate</a><a class="ml" href="/#live">The shelf</a><a class="ml" href="/#juice">$JUICE</a><a class="ml" href="/#faq">FAQ</a></nav>
+  <nav class="ms-links" aria-label="Sections"><a class="ml" href="/#how">How it works</a><a class="ml" href="/#squeeze">The squeeze</a><a class="ml" href="/#stocks">The menu</a><a class="ml" href="/#today">Today</a><a class="ml" href="/#split">Concentrate</a><a class="ml" href="/#live">The shelf</a><a class="ml" href="/#juice">$JUICE</a><a class="ml" href="/#faq">FAQ</a></nav>
   <div class="ms-cta"><a class="btn btn-white btn-lg" href="/launch" data-link>Launch a coin <i class="arr">→</i></a></div>
 </div>
 
 <main id="home">
   <!-- hero -->
   <section id="hero" class="hero">
+    <canvas id="bub" aria-hidden="true"></canvas>
     <canvas id="pc" aria-label="A 3D juice box whose label shows the stock it holds and its leverage. Click it to squeeze it."></canvas>
     <div class="orbit" id="orbit" aria-hidden="true"></div>
     <div class="wrap hero-in">
@@ -118,11 +121,50 @@
     </div>
   </section>
 
+  <!-- 02 the squeeze: one box, start to finish (pinned, scrubbed by scroll) -->
+  <section id="squeeze" class="sec sqz">
+    <div class="wrap sqz-in">
+      <div class="sqz-l">
+        <span class="eyebrow">02 · The squeeze</span>
+        <h2 class="h2">One box, start to finish.</h2>
+        <ol class="sqz-steps" id="sqzSteps">
+          <li class="on"><i>1</i><div><b>Fees pour in</b><span>Every buy and sell pays a creator fee. 70% of it pours into the coin's box as margin.</span></div></li>
+          <li><i>2</i><div><b>The position opens</b><span id="sqzOpen">The box holds a leveraged position on a real stock perp on Hyperliquid, at the strength set at launch.</span></div></li>
+          <li><i>3</i><div><b>The stock moves</b><span id="sqzMove">At 5x, every 1% the stock moves is 5% on the box.</span></div></li>
+          <li><i>4</i><div><b>Squeeze. Buy back. Burn.</b><span>Profit above the pour is taken, swapped to SOL, buys the coin on the market and burns it. The box keeps its pour and keeps going.</span></div></li>
+        </ol>
+        <div class="sqz-bar"><i id="sqzBar"></i></div>
+      </div>
+      <div class="sqz-r">
+        <div class="sqz-stage" id="sqzStage">
+          <svg viewBox="0 0 760 600" class="sqz-svg" aria-hidden="true">
+            <defs><clipPath id="sqzClip"><rect x="110" y="200" width="250" height="340" rx="28"/></clipPath></defs>
+            <g class="sqz-grid"><path d="M400 170H740M400 247H740M400 323H740M400 400H740" stroke="rgba(255,255,255,.14)" stroke-width="2"/></g>
+            <rect id="sqzStream" x="158" y="-30" width="26" height="0" rx="13" fill="#ffd23f"/>
+            <g id="sqzBox">
+              <path d="M300 200V92Q300 66 324 58L398 34" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M300 200V92Q300 66 324 58L398 34" fill="none" stroke="#ff6f12" stroke-width="18" stroke-dasharray="13 13"/>
+              <rect x="110" y="200" width="250" height="340" rx="28" fill="rgba(42,22,9,.2)"/>
+              <g clip-path="url(#sqzClip)"><rect id="sqzLq" x="100" y="540" width="270" height="420" fill="#ffd23f"/><path id="sqzWave" fill="#ffd23f" d="M0 0"/></g>
+              <rect x="110" y="200" width="250" height="340" rx="28" fill="none" stroke="#fff" stroke-width="11"/>
+            </g>
+            <path id="sqzChart" d="M400 420" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            <g id="sqzDrops" fill="#ffd23f"><circle r="9"/><circle r="7"/><circle r="10"/><circle r="6"/><circle r="8"/><circle r="7"/><circle r="9"/></g>
+          </svg>
+          <div class="sqz-chip" id="sqzChip"><span class="sqz-lg" id="sqzLg"></span><div><b id="sqzPos">LONG 5x</b><span>on Hyperliquid</span></div></div>
+          <div class="sqz-gain" id="sqzGain"><span id="sqzGl">the box</span><b id="sqzPct">—</b></div>
+          <div class="sqz-burn" id="sqzBurn"><span>profit taken</span><span>bought back</span><span>burned</span></div>
+          <div class="sqz-tag mono" id="sqzTag">fees → margin</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- 02 why -->
   <section id="why" class="sec">
     <svg class="bgdrop bd1" viewBox="2 0 17 24" aria-hidden="true"><use href="#jmono"/></svg>
     <div class="wrap">
-      <header class="sec-head"><span class="eyebrow">02 · Why JUICE</span><h2 class="h2 split">Same coin. With a trade inside.</h2><p class="sec-lead rv">A normal coin only moves when someone buys it. A juiced coin also holds a live position on a real stock, and when that trade wins, the coin buys itself back.</p></header>
+      <header class="sec-head"><span class="eyebrow">03 · Why JUICE</span><h2 class="h2 split">Same coin. With a trade inside.</h2><p class="sec-lead rv">A normal coin only moves when someone buys it. A juiced coin also holds a live position on a real stock, and when that trade wins, the coin buys itself back.</p></header>
       <div class="vs" id="vs">
         <div class="vs-col vs-a"><div class="vs-h"><span class="vs-ic">?</span><span class="vs-t">A normal coin</span></div>
           <ul>
@@ -148,7 +190,7 @@
   <!-- 03 the menu -->
   <section id="stocks" class="sec sec-ink">
     <div class="wrap">
-      <header class="sec-head sec-row"><div><span class="eyebrow">03 · The menu</span><h2 class="h2 split">Real stocks. Live perps.</h2><p class="sec-lead rv">Every JUICE coin holds a position on one of Hyperliquid's stock markets: US stocks, indices, gold, oil and pre-IPO names. Live mark prices, volume, funding and max leverage, straight from Hyperliquid. Tap any card for its chart.</p></div>
+      <header class="sec-head sec-row"><div><span class="eyebrow">04 · The menu</span><h2 class="h2 split">Real stocks. Live perps.</h2><p class="sec-lead rv">Every JUICE coin holds a position on one of Hyperliquid's stock markets: US stocks, indices, gold, oil and pre-IPO names. Live mark prices, volume, funding and max leverage, straight from Hyperliquid. Tap any card for its chart.</p></div>
         <div class="seg" id="viewSeg" role="tablist"><button class="on" data-v="cards" type="button">Cards</button><button data-v="map" type="button">Map</button></div>
       </header>
       <div class="spot rv" id="spot">
@@ -180,11 +222,24 @@
     </div>
   </section>
 
+  <!-- 05 today: a box on every busy market, opened at yesterday's price -->
+  <section id="today" class="sec">
+    <svg class="bgdrop bd5" viewBox="2 0 17 24" aria-hidden="true"><use href="#jmono"/></svg>
+    <div class="wrap">
+      <header class="sec-head sec-row"><div><span class="eyebrow">05 · Today</span><h2 class="h2 split">If every box poured yesterday.</h2><p class="sec-lead rv">A box on each of the busiest markets, opened at yesterday's price. A full box got squeezed: its profit would buy the coin back and burn it. A low box is draining toward a spill. Real prices, live from Hyperliquid.</p></div>
+        <div class="td-ctl"><div class="seg" id="tdLev"><button data-l="2" type="button">2x</button><button data-l="3" type="button">3x</button><button class="on" data-l="5" type="button">5x</button><button data-l="10" type="button">10x</button></div><div class="seg" id="tdSide"><button class="on" data-s="long" type="button">Long</button><button data-s="short" type="button">Short</button></div></div>
+      </header>
+      <div class="td-sum rv" id="tdSum"><div><span>Squeezed</span><b id="tdUp">—</b></div><div><span>Draining</span><b id="tdDn">—</b></div><div><span>Spilled</span><b id="tdSp">—</b></div><div class="td-best"><span>Best squeeze</span><b id="tdBest">—</b></div></div>
+      <div class="td-grid" id="tdGrid"></div>
+      <p class="td-note mono" id="tdNote">&nbsp;</p>
+    </div>
+  </section>
+
   <!-- 04 the split + the concentrate -->
   <section id="split" class="sec sec-blue">
     <svg class="bgdrop bd2" viewBox="2 0 17 24" aria-hidden="true"><use href="#jmono"/></svg>
     <div class="wrap">
-      <header class="sec-head"><span class="eyebrow">04 · The concentrate</span><h2 class="h2 split">Every fee has a job.</h2><p class="sec-lead rv">pump.fun pays a creator fee on every trade. A JUICE coin shares it on-chain from its first block. Most of it becomes margin for the coin's own trade, and the leverage you pick is the concentrate.</p></header>
+      <header class="sec-head"><span class="eyebrow">06 · The concentrate</span><h2 class="h2 split">Every fee has a job.</h2><p class="sec-lead rv">pump.fun pays a creator fee on every trade. A JUICE coin shares it on-chain from its first block. Most of it becomes margin for the coin's own trade, and the leverage you pick is the concentrate.</p></header>
       <div class="sm-in">
         <div class="sm-l">
           <div class="donut" id="donut"><svg viewBox="0 0 200 200" aria-hidden="true"><circle class="d-trk" cx="100" cy="100" r="80"/><g id="dSegs"></g></svg><div class="d-mid"><b id="dPct">100%</b><span id="dLbl">of every creator fee</span></div></div>
@@ -218,7 +273,7 @@
   <section id="live" class="sec sec-ink">
     <svg class="bgdrop bd4" viewBox="2 0 17 24" aria-hidden="true"><use href="#jmono"/></svg>
     <div class="wrap">
-      <header class="sec-head sec-row"><div><span class="eyebrow">05 · The shelf</span><h2 class="h2 split">Every coin, on the shelf.</h2><p class="sec-lead rv">Each JUICE coin stands here as a box, filled to its distance from liquidation. A full box is safe, a low box is close to a spill. Pour one yourself: it opens at Hyperliquid's live price and follows it from there.</p></div></header>
+      <header class="sec-head sec-row"><div><span class="eyebrow">07 · The shelf</span><h2 class="h2 split">Every coin, on the shelf.</h2><p class="sec-lead rv">Each JUICE coin stands here as a box, filled to its distance from liquidation. A full box is safe, a low box is close to a spill. Pour one yourself: it opens at Hyperliquid's live price and follows it from there.</p></div></header>
       <ul class="status rv" id="status"><li><i></i>The menu <em>live from Hyperliquid</em></li><li><i></i>Prices <em id="stTick">every 10 s</em></li><li><i></i>Pour a box <em>live</em></li><li class="wait"><i></i>Position engine <em>in testing</em></li><li class="wait" id="stJuice"><i></i>$JUICE burn <em>starts at $JUICE launch</em></li></ul>
       <div class="shelf-wrap">
         <div class="pour" id="pour">
@@ -238,7 +293,7 @@
   <section id="juice" class="milkband">
     <div class="wrap milk-in">
       <div class="milk-l">
-        <span class="eyebrow">06 · $JUICE</span>
+        <span class="eyebrow">08 · $JUICE</span>
         <h2 class="h2 split">Every pour feeds $JUICE.</h2>
         <p class="body">15% of every coin's fees buys $JUICE on the open market and burns it. Every launch, every trade and every squeeze on JUICE adds to it.</p>
         <ul class="mlist"><li>Bought with real trading fees</li><li>Burned on-chain, pour after pour</li><li>Grows with every coin juiced on JUICE</li></ul>
@@ -252,7 +307,7 @@
   <!-- 07 FAQ -->
   <section id="faq" class="sec sec-navy">
     <svg class="bgdrop bd3" viewBox="2 0 17 24" aria-hidden="true"><use href="#jmono"/></svg>
-    <div class="wrap faq-in"><header class="sec-head"><span class="eyebrow">07 · FAQ</span><h2 class="h2 split">Questions.</h2></header><div class="qa" id="qa"></div></div>
+    <div class="wrap faq-in"><header class="sec-head"><span class="eyebrow">09 · FAQ</span><h2 class="h2 split">Questions.</h2></header><div class="qa" id="qa"></div></div>
   </section>
 
   <!-- end -->
@@ -283,6 +338,6 @@
 <div class="modal" id="modal" aria-hidden="true"><div class="md-bg" data-close></div><div class="md-panel" role="dialog" aria-modal="true"><button class="md-x" type="button" data-close aria-label="Close">×</button><div class="md-body" id="mdBody"></div></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="jbox" viewBox="2 0 17 24"><path fill="currentColor" d="M15 0h2v1h-2zM14 1h2v1h-2zM13 2h2v1h-2zM13 3h1v1h-1zM13 4h1v1h-1zM13 5h1v1h-1zM5 6h13v1h-13zM4 7h14v1h-14zM3 8h15v1h-15zM3 9h15v1h-15zM3 10h15v1h-15zM3 11h7v1h-7zM12 11h6v1h-6zM3 12h6v1h-6zM10 12h8v1h-8zM3 13h4v1h-4zM11 13h7v1h-7zM3 14h3v1h-3zM12 14h6v1h-6zM3 15h3v1h-3zM12 15h6v1h-6zM3 16h3v1h-3zM12 16h6v1h-6zM3 17h3v1h-3zM12 17h6v1h-6zM3 18h4v1h-4zM11 18h7v1h-7zM3 19h15v1h-15zM3 20h15v1h-15zM3 21h15v1h-15zM3 22h15v1h-15zM3 23h14v1h-14z"/><path fill="var(--jo,#ff6f12)" d="M7 13h4v1h-4zM6 14h6v1h-6zM6 15h6v1h-6zM6 16h6v1h-6zM6 17h6v1h-6zM7 18h4v1h-4z"/><path fill="var(--jg,#2fbf5b)" d="M10 11h2v1h-2zM9 12h1v1h-1z"/><path fill="rgba(0,0,0,.09)" d="M15 8h3v1h-3zM15 9h3v1h-3zM15 10h3v1h-3zM15 11h3v1h-3zM15 12h3v1h-3zM15 13h3v1h-3zM15 14h3v1h-3zM15 15h3v1h-3zM15 16h3v1h-3zM15 17h3v1h-3zM15 18h3v1h-3zM15 19h3v1h-3zM15 20h3v1h-3zM15 21h3v1h-3zM15 22h3v1h-3zM15 23h2v1h-2z"/></symbol><symbol id="jmono" viewBox="2 0 17 24"><path fill="currentColor" d="M15 0h2v1h-2zM14 1h2v1h-2zM13 2h2v1h-2zM13 3h1v1h-1zM13 4h1v1h-1zM13 5h1v1h-1zM5 6h13v1h-13zM4 7h14v1h-14zM3 8h15v1h-15zM3 9h15v1h-15zM3 10h15v1h-15zM3 11h7v1h-7zM12 11h6v1h-6zM3 12h6v1h-6zM10 12h8v1h-8zM3 13h4v1h-4zM11 13h7v1h-7zM3 14h3v1h-3zM12 14h6v1h-6zM3 15h3v1h-3zM12 15h6v1h-6zM3 16h3v1h-3zM12 16h6v1h-6zM3 17h3v1h-3zM12 17h6v1h-6zM3 18h4v1h-4zM11 18h7v1h-7zM3 19h15v1h-15zM3 20h15v1h-15zM3 21h15v1h-15zM3 22h15v1h-15zM3 23h14v1h-14z"/></symbol></defs></svg>
-<script type="module" src="/assets/js/main.js?v=1"></script>
+<script type="module" src="/assets/js/main.js?v=2"></script>
 </body>
 </html>
