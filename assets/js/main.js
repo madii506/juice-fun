@@ -92,5 +92,5 @@ document.addEventListener('error', e => {
 }, true);
 
 smooth();
-if (document.documentElement.classList.contains('intro') && window.__lenis) { __lenis.stop(); window.__intro.then(() => { __lenis.start(); ScrollTrigger.refresh(); }); }
+if (document.documentElement.classList.contains('intro') && window.__lenis) { __lenis.stop(); window.__intro.then(() => { __lenis.start(); setTimeout(() => ScrollTrigger.refresh(), 1300); }); }
 route(false);
