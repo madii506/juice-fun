@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JUICE</title>
+<meta name="description" content="Every coin gets juiced. Launch a coin on pump.fun and its fees hold a leveraged position on a real stock. Wins buy the coin back and burn it.">
+<meta name="theme-color" content="#ff6f12">
+<meta property="og:type" content="website">
+<meta property="og:title" content="JUICE">
+<meta property="og:description" content="Every coin gets juiced. Its fees hold a leveraged position on a real stock. Wins buy it back and burn it.">
+<meta property="og:image" content="https://juice-fun.vercel.app/assets/img/og.jpg">
+<meta property="og:url" content="https://juice-fun.vercel.app/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://juice-fun.vercel.app/assets/img/og.jpg">
+<link rel="icon" href="/assets/img/favicon-64.png?v=2" sizes="64x64" type="image/png">
+<link rel="icon" href="/assets/img/favicon-32.png?v=2" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/assets/img/favicon-180.png?v=2">
+<link rel="preload" href="/assets/fonts/idisp-black.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="modulepreload" href="/assets/js/main.js?v=1">
+<link rel="modulepreload" href="/assets/js/vendor-motion.js?v=1">
+<link rel="modulepreload" href="/assets/js/core.js">
+<link rel="modulepreload" href="/assets/js/motion.js">
+<link rel="modulepreload" href="/assets/js/home.js?v=1">
+<link rel="modulepreload" href="/assets/js/drawer.js">
+<link rel="modulepreload" href="/assets/js/box3d.js?v=1">
+<link rel="stylesheet" href="/assets/css/app.css?v=1">
+</head>
+<body>
+
+
+<header id="nav">
+  <a class="brand" href="/" data-link aria-label="JUICE home"><svg class="jb" viewBox="2 0 17 24" aria-hidden="true"><use href="#jbox"/></svg><span>juice</span></a>
+  <nav class="links" aria-label="Sections">
+    <a href="/#how" data-sec>How it works</a><a href="/#stocks" data-sec>The menu</a><a href="/#split" data-sec>Concentrate</a><a href="/#live" data-sec>The shelf</a><a href="/#juice" data-sec>$JUICE</a><a href="/#faq" data-sec>FAQ</a>
+  </nav>
+  <div class="nav-r">
+    <a class="nbtn nx" id="navX" href="#" target="_blank" rel="noopener" aria-label="JUICE on X" hidden><svg viewBox="0 0 24 24"><path fill="currentColor" d="M17.8 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.3-8.3L2 3h6.4l4.4 5.8zm-1.1 16.2h1.7L7.4 4.7H5.6z"/></svg></a>
+    <a class="btn btn-sm btn-white mag" href="/launch" data-link>Launch a coin</a>
+    <button class="nbtn nmenu" id="menuBtn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="mSheet"><i></i><i></i></button>
+  </div>
+</header>
+<div class="msheet" id="mSheet" hidden>
+  <nav class="ms-links" aria-label="Sections"><a class="ml" href="/#how">How it works</a><a class="ml" href="/#stocks">The menu</a><a class="ml" href="/#split">Concentrate</a><a class="ml" href="/#live">The shelf</a><a class="ml" href="/#juice">$JUICE</a><a class="ml" href="/#faq">FAQ</a></nav>
+  <div class="ms-cta"><a class="btn btn-white btn-lg" href="/launch" data-link>Launch a coin <i class="arr">→</i></a></div>
+</div>
+
+<main id="home">
+  <!-- hero -->
+  <section id="hero" class="hero">
+    <canvas id="pc" aria-label="A 3D juice box whose label shows the stock it holds and its leverage. Click it to squeeze it."></canvas>
+    <div class="orbit" id="orbit" aria-hidden="true"></div>
+    <div class="wrap hero-in">
+      <p class="kicker mono rv"><span class="g">every coin</span> <span class="b">gets juiced</span> <i class="cur"></i></p>
+      <h1 class="h-hero"><span class="ln"><span>Every coin</span></span> <span class="ln"><span>gets juiced.</span></span></h1>
+      <p class="lead rv">Launch a coin. Its fees hold a leveraged position on a real stock. Wins buy it back and burn it.</p>
+      <div class="ctas rv">
+        <a class="btn btn-white btn-lg mag" href="/launch" data-link>Launch a coin <i class="arr">→</i></a>
+        <button class="btn btn-ghost btn-lg" id="surprise" type="button">Surprise me <i class="dice" aria-hidden="true">⚄</i></button>
+      </div>
+      <ul class="trust mono rv">
+        <li><b class="ck">✓</b>Real stock perps on Hyperliquid</li>
+        <li><b class="ck">✓</b><span id="nStocks">—</span> markets live</li>
+        <li><b class="ck">✓</b>Wins buy back &amp; burn</li>
+      </ul>
+    </div>
+    <p class="squeeze-hint mono" id="sqHint" aria-hidden="true">click the box</p>
+    <div class="tape" id="tape" aria-label="Live stock perp prices"><div class="tape-track"></div></div>
+  </section>
+
+  <!-- 01 how it works -->
+  <section id="how" class="sec sec-navy">
+    <div class="wrap how-in">
+      <div class="how-l">
+        <header class="sec-head"><span class="eyebrow">01 · How it works</span><h2 class="h2 split">How a coin gets juiced.</h2><p class="sec-lead rv">A JUICE coin is a normal pump.fun coin with one difference: its creator fee pours into a live trade. Every coin holds its own leveraged position on a real stock, and every win is squeezed back into the coin.</p></header>
+        <ol class="hsteps" id="hsteps">
+          <li class="on"><button type="button" data-i="0"><span class="n">1</span><span><b>Pick a stock and a strength</b><em>Name, picture, ticker, the stock it holds and the leverage. It launches on pump.fun like any coin.</em></span><i class="bar"><i></i></i></button></li>
+          <li><button type="button" data-i="1"><span class="n">2</span><span><b>Trades pay fees</b><em>Every buy and sell pays pump.fun's creator fee. A JUICE coin shares it on-chain: 10% to you, 90% to the engine.</em></span><i class="bar"><i></i></i></button></li>
+          <li><button type="button" data-i="2"><span class="n">3</span><span><b>Fees pour into the box</b><em>The engine moves the coin's fees to Hyperliquid and adds them to the coin's own position on its stock, at its leverage.</em></span><i class="bar"><i></i></i></button></li>
+          <li><button type="button" data-i="3"><span class="n">4</span><span><b>Wins get squeezed</b><em>When the position is up, profit buys the coin back on the market and burns it. A spill refills from the next fees.</em></span><i class="bar"><i></i></i></button></li>
+        </ol>
+      </div>
+      <div class="how-r">
+        <div class="phone" id="phone">
+          <div class="ph-scr">
+            <div class="ph-island"></div>
+            <div class="ph-sb"><span>9:41</span><span class="ph-bat"><b></b><b></b><b></b><b></b><i></i></span></div>
+            <div class="ph-top"><span class="ph-logo"><svg viewBox="2 0 17 24"><use href="#jmono"/></svg></span><b>JUICE</b><span class="ph-chip" id="phChip">New coin</span></div>
+            <div class="ph-stage">
+              <div class="ps ps1">
+                <div class="ph-coin"><div class="ph-av"><svg viewBox="2 0 17 24"><use href="#jbox"/></svg></div><div><div class="ph-name"><span id="phName"></span><i class="ph-caret"></i></div><div class="ph-tk mono" id="phTk">$</div></div></div>
+                <div class="ph-card"><div class="ph-lbl">HOLDS A POSITION IN</div><div class="ph-chips" id="phChips"><span class="tk on">TSLA</span><span class="tk">NVDA</span><span class="tk">OPENAI</span><span class="tk">GOLD</span></div></div>
+                <div class="ph-card"><div class="ph-lbl">STRENGTH</div><div class="ph-chips ph-lev"><span class="tk">2x</span><span class="tk">3x</span><span class="tk on">5x</span><span class="tk">10x</span></div></div>
+                <button class="ph-btn" type="button" tabindex="-1"><span class="a">Launch on pump.fun</span><span class="b">Live on pump.fun ✓</span></button>
+              </div>
+              <div class="ps ps2">
+                <div class="ph-card ph-ring"><svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="32" class="trk"/><circle cx="40" cy="40" r="32" class="val" id="phRing"/></svg><div class="ph-rd"><svg viewBox="2 0 17 24"><use href="#jmono"/></svg></div><div><div class="h">Next pour</div><div class="m">fills with every trade</div></div></div>
+                <div class="ph-card ph-trades" id="phTrades"></div>
+              </div>
+              <div class="ps ps3">
+                <div class="ph-card ph-swap"><div class="ph-lbl">THE POSITION, ON HYPERLIQUID</div><div class="sw"><span class="sw-a">FEES</span><span class="sw-line"><i></i></span><span class="sw-b" id="phBuyTk">TSLA 5x</span></div><div class="ph-prog"><i id="phProg"></i></div><div class="ph-ok" id="phBought">Long opened ✓</div></div>
+                <div class="ph-card ph-fillc"><div class="ph-lbl">THE BOX</div><div class="ph-fill"><span class="pf-box"><i id="phFill"></i></span><div><b id="phDist">—</b><span>to a spill</span></div></div></div>
+              </div>
+              <div class="ps ps4"><div class="ph-card ph-pay" id="phPay"></div><div class="ph-note">Squeezed. Bought back. Burned.</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="wrap">
+      <div class="feats">
+        <div class="ft rv"><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 7h6v6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b>Real stock perps</b><p>Positions live on Hyperliquid's stock markets: TSLA, NVDA, gold, the Nasdaq and pre-IPO names, with live mark prices.</p></div>
+        <div class="ft rv"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 2c3 4 6 6.5 6 11a6 6 0 0 1-12 0c0-2.6 1.4-4.3 2.8-5.6.2 2 1 3.2 2.2 3.6C11 8 11 5 12 2z" fill="currentColor"/></svg></span><b>Wins burn the coin</b><p>Profit is taken in USDC, swapped back to SOL and used to buy the coin on the market. Those coins are burned on-chain.</p></div>
+        <div class="ft rv"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M18 2v5h-5M6 22v-5h5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b>Spills refill</b><p>A liquidation is a spill, not the end. The coin keeps trading, its fees keep coming, and the next pour opens a fresh position.</p></div>
+        <div class="ft rv"><span class="ic"><svg viewBox="0 0 24 24"><path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="2.4"/><rect x="4" y="10" width="16" height="11" rx="3" fill="currentColor"/></svg></span><b>Split locked at launch</b><p>Set in pump.fun's own fee sharing when the coin launches, with the admin revoked in the same transaction.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 why -->
+  <section id="why" class="sec">
+    <svg class="bgdrop bd1" viewBox="2 0 17 24" aria-hidden="true"><use href="#jmono"/></svg>
+    <div class="wrap">
+      <header class="sec-head"><span class="eyebrow">02 · Why JUICE</span><h2 class="h2 split">Same coin. With a trade inside.</h2><p class="sec-lead rv">A normal coin only moves when someone buys it. A juiced coin also holds a live position on a real stock, and when that trade wins, the coin buys itself back.</p></header>
+      <div class="vs" id="vs">
+        <div class="vs-col vs-a"><div class="vs-h"><span class="vs-ic">?</span><span class="vs-t">A normal coin</span></div>
+          <ul>
+            <li><span>Creator fee</span><b>All to the dev</b></li>
+            <li><span>What it holds</span><b>Nothing</b></li>
+            <li><span>Buy pressure</span><b>Only new buyers</b></li>
+            <li><span>When the stock market rips</span><b>Nothing happens</b></li>
+            <li><span>When the hype cools</span><b>Nothing left</b></li>
+          </ul></div>
+        <div class="vs-mid" aria-hidden="true"><span>vs</span></div>
+        <div class="vs-col vs-b"><div class="vs-h"><span class="vs-ic"><svg viewBox="2 0 17 24"><use href="#jbox"/></svg></span><span class="vs-t">A juiced coin</span></div>
+          <ul>
+            <li><span>Creator fee</span><b>90% pours into its trade · 10% to you</b></li>
+            <li><span>What it holds</span><b>A live position on a real stock</b></li>
+            <li><span>Buy pressure</span><b>Every win buys it back</b></li>
+            <li><span>When the stock market rips</span><b>Supply burns</b></li>
+            <li><span>When the hype cools</span><b>The trade keeps working</b></li>
+          </ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 the menu -->
+  <section id="stocks" class="sec sec-ink">
+    <div class="wrap">
+      <header class="sec-head sec-row"><div><span class="eyebrow">03 · The menu</span><h2 class="h2 split">Real stocks. Live perps.</h2><p class="sec-lead rv">Every JUICE coin holds a position on one of Hyperliquid's stock markets: US stocks, indices, gold, oil and pre-IPO names. Live mark prices, volume, funding and max leverage, straight from Hyperliquid. Tap any card for its chart.</p></div>
+        <div class="seg" id="viewSeg" role="tablist"><button class="on" data-v="cards" type="button">Cards</button><button data-v="map" type="button">Map</button></div>
+      </header>
+      <div class="spot rv" id="spot">
+        <div class="sp-main">
+          <div class="sp-head">
+            <span class="sp-logo"><img id="spLogo" alt="" width="54" height="54"><b id="spLetter" hidden></b></span>
+            <div class="sp-id"><b id="spTk">—</b><span id="spName">—</span></div>
+            <div class="seg sp-tf" id="spTf"><button class="on" data-tf="24h" type="button">24h</button><button data-tf="7d" type="button">7d</button></div>
+          </div>
+          <div class="sp-price"><b id="spPx">—</b><span class="chg fl" id="spChg">—</span></div>
+          <div class="sp-chart" id="spChart"><canvas id="spCv"></canvas><span class="sp-tip mono" id="spTip" hidden></span></div>
+          <p class="sp-note mono" id="spNote">&nbsp;</p>
+        </div>
+        <div class="sp-side">
+          <span class="sp-lbl mono">In the spotlight</span>
+          <div class="sp-pick" id="spPick" role="tablist" aria-label="Spotlight"></div>
+          <dl class="sp-stats" id="spStats"></dl>
+          <div class="sp-range" id="spRange" hidden><span class="mono" id="srLbl">24h range</span><div class="sr-bar"><i id="srDot"></i></div><div class="sr-ends mono"><span id="srLo">—</span><span id="srHi">—</span></div></div>
+          <a class="btn btn-white btn-lg sp-go mag" id="spGo" href="/launch" data-link>Juice a coin with it <i class="arr">→</i></a>
+        </div>
+      </div>
+      <div class="stools">
+        <div class="chips" id="stockChips" role="tablist"><button class="chip on" data-k="top" type="button">Most traded</button><button class="chip" data-k="tech" type="button">Tech</button><button class="chip" data-k="crypto" type="button">Crypto stocks</button><button class="chip" data-k="preipo" type="button">Pre-IPO</button><button class="chip" data-k="etf" type="button">Indices &amp; commodities</button><button class="chip" data-k="up" type="button">Up today</button><button class="chip" data-k="down" type="button">Down today</button></div>
+        <label class="sfind"><input id="stockQ" class="mono" placeholder="Search" autocomplete="off" spellcheck="false"></label>
+      </div>
+      <div class="sgrid2" id="sgrid2"></div>
+      <div class="mapbox" id="mapBox" hidden></div>
+      <div class="smore"><button class="btn btn-line-w" id="moreStocks" type="button">Show all</button></div>
+    </div>
+  </section>
+
+  <!-- 04 the split + the concentrate -->
+  <section id="split" class="sec sec-blue">
+    <svg class="bgdrop bd2" viewBox="2 0 17 24" aria-hidden="true"><use href="#jmono"/></svg>
+    <div class="wrap">
+      <header class="sec-head"><span class="eyebrow">04 · The concentrate</span><h2 class="h2 split">Every fee has a job.</h2><p class="sec-lead rv">pump.fun pays a creator fee on every trade. A JUICE coin shares it on-chain from its first block. Most of it becomes margin for the coin's own trade, and the leverage you pick is the concentrate.</p></header>
+      <div class="sm-in">
+        <div class="sm-l">
+          <div class="donut" id="donut"><svg viewBox="0 0 200 200" aria-hidden="true"><circle class="d-trk" cx="100" cy="100" r="80"/><g id="dSegs"></g></svg><div class="d-mid"><b id="dPct">100%</b><span id="dLbl">of every creator fee</span></div></div>
+          <ul class="legend" id="legend">
+            <li data-c="#ffffff"><i></i><b data-n="70">0</b><span><em>The position</em>margin for the coin's trade</span></li>
+            <li data-c="#ffd23f"><i></i><b data-n="15">0</b><span><em>$JUICE</em>bought and burned</span></li>
+            <li data-c="#2a1609"><i></i><b data-n="10">0</b><span><em>Creator</em>in SOL</span></li>
+            <li data-c="#ffb37a"><i></i><b data-n="5">0</b><span><em>Engine</em>gas and bridging</span></li>
+          </ul>
+          <div class="lock"><span class="lk"><svg viewBox="0 0 24 24"><path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="2.4"/><rect x="4" y="10" width="16" height="11" rx="3" fill="currentColor"/></svg></span><div><b>Locked at launch</b><span>admin revoked in the same transaction</span></div></div>
+        </div>
+        <div class="calc-card" id="calcCard">
+          <div class="cc-t">Pour a box</div>
+          <div class="cc-row"><label for="cVol">Daily volume</label><output id="oVol">$100K</output><input type="range" id="cVol" min="0" max="100" value="50"></div>
+          <div class="cc-row cc-pick"><label>Stock</label><div class="cc-chips" id="cStock"></div></div>
+          <div class="cc-row cc-pick"><label>Strength</label><div class="cc-chips cc-lev" id="cLev"></div></div>
+          <div class="cc-out cc-juice">
+            <div class="cj-box" aria-hidden="true"><svg viewBox="0 0 120 170"><defs><clipPath id="cjClip"><rect x="14" y="40" width="92" height="124" rx="9"/></clipPath></defs><path d="M86 40V6l18-4" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><rect x="14" y="40" width="92" height="124" rx="9" fill="rgba(255,255,255,.16)" stroke="#fff" stroke-width="5"/><g clip-path="url(#cjClip)"><rect id="cjLiquid" x="10" y="164" width="100" height="130" fill="#ffd23f"/><path id="cjWave" d="M0 0" fill="#ffd23f"/></g><text id="cjPct" x="60" y="112" text-anchor="middle">—</text></svg></div>
+            <div class="cj-nums">
+              <div class="cc-big"><span>A day of fees pours</span><b id="oDay">—</b><em id="oPos">—</em></div>
+              <div class="cc-mini"><div><span>spills if it moves</span><b id="oLiq">—</b></div><div><span>a +5% day earns</span><b id="oWin">—</b></div><div><span>a month of pours</span><b id="oMonth">—</b></div></div>
+            </div>
+          </div>
+          <p class="cc-note mono" id="oNote">—</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 the shelf -->
+  <section id="live" class="sec sec-ink">
+    <svg class="bgdrop bd4" viewBox="2 0 17 24" aria-hidden="true"><use href="#jmono"/></svg>
+    <div class="wrap">
+      <header class="sec-head sec-row"><div><span class="eyebrow">05 · The shelf</span><h2 class="h2 split">Every coin, on the shelf.</h2><p class="sec-lead rv">Each JUICE coin stands here as a box, filled to its distance from liquidation. A full box is safe, a low box is close to a spill. Pour one yourself: it opens at Hyperliquid's live price and follows it from there.</p></div></header>
+      <ul class="status rv" id="status"><li><i></i>The menu <em>live from Hyperliquid</em></li><li><i></i>Prices <em id="stTick">every 10 s</em></li><li><i></i>Pour a box <em>live</em></li><li class="wait"><i></i>Position engine <em>in testing</em></li><li class="wait" id="stJuice"><i></i>$JUICE burn <em>starts at $JUICE launch</em></li></ul>
+      <div class="shelf-wrap">
+        <div class="pour" id="pour">
+          <div class="pr-t">Pour a test box</div>
+          <p class="pr-s">Pick a stock, a strength and a side. Nothing is bought: the box just follows the live price in your browser.</p>
+          <div class="pr-row"><span class="pr-l">Stock</span><div class="cc-chips" id="prStock"></div></div>
+          <div class="pr-row"><span class="pr-l">Strength</span><div class="cc-chips cc-lev" id="prLev"></div></div>
+          <div class="pr-row"><span class="pr-l">Side</span><div class="seg pr-side" id="prSide"><button class="on" data-s="long" type="button">Long</button><button data-s="short" type="button">Short</button></div></div>
+          <button class="btn btn-white btn-lg mag" id="prGo" type="button">Pour it <i class="arr">→</i></button>
+        </div>
+        <div class="jshelf" id="shelf"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 $JUICE -->
+  <section id="juice" class="milkband">
+    <div class="wrap milk-in">
+      <div class="milk-l">
+        <span class="eyebrow">06 · $JUICE</span>
+        <h2 class="h2 split">Every pour feeds $JUICE.</h2>
+        <p class="body">15% of every coin's fees buys $JUICE on the open market and burns it. Every launch, every trade and every squeeze on JUICE adds to it.</p>
+        <ul class="mlist"><li>Bought with real trading fees</li><li>Burned on-chain, pour after pour</li><li>Grows with every coin juiced on JUICE</li></ul>
+        <div class="ca" id="ca" hidden><span class="mono" id="caTxt"></span><button class="btn btn-sm btn-ink" id="caCopy" type="button">Copy</button></div>
+        <div class="mstats"><div><b id="mAside">—</b><span>SOL for $JUICE</span></div><div><b id="mBurn">—</b><span>$JUICE burned</span></div></div>
+      </div>
+      <div class="milk-r" aria-hidden="true"><canvas id="dripCv" width="600" height="560"></canvas></div>
+    </div>
+  </section>
+
+  <!-- 07 FAQ -->
+  <section id="faq" class="sec sec-navy">
+    <svg class="bgdrop bd3" viewBox="2 0 17 24" aria-hidden="true"><use href="#jmono"/></svg>
+    <div class="wrap faq-in"><header class="sec-head"><span class="eyebrow">07 · FAQ</span><h2 class="h2 split">Questions.</h2></header><div class="qa" id="qa"></div></div>
+  </section>
+
+  <!-- end -->
+  <section id="end" class="end">
+    <div class="wrap end-in">
+      <h2 class="mega" aria-label="juice"><span>j</span><span>u</span><span>i</span><span>c</span><span>e</span></h2>
+      <p class="lead">Launch a coin. Its fees hold a real stock at your leverage. Every win burns it.</p>
+      <div class="ctas"><a class="btn btn-white btn-lg mag" href="/launch" data-link>Launch a coin <i class="arr">→</i></a><a class="btn btn-ghost btn-lg" href="/#stocks" data-sec>See the menu</a></div>
+    </div>
+  </section>
+</main>
+
+<main id="app" hidden></main>
+
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="dr-bg" data-close></div>
+  <div class="dr-panel" role="dialog" aria-modal="true" aria-labelledby="drTitle">
+    <button class="dr-x" type="button" data-close aria-label="Close">×</button>
+    <div class="dr-head"><img id="drLogo" alt="" width="56" height="56"><div><h3 id="drTitle"></h3><p id="drSub"></p></div></div>
+    <div class="dr-price"><b id="drPrice">—</b><span id="drChg"></span></div>
+    <div class="dr-chart"><div class="dr-tf"><button class="on" data-tf="24h" type="button">24h</button><button data-tf="7d" type="button">7d</button></div><canvas id="drChart" width="840" height="320"></canvas><p class="dr-cn mono" id="drCn"></p></div>
+    <dl class="dr-stats" id="drStats"></dl>
+    <a class="btn btn-blue btn-lg dr-go" id="drGo" href="/launch" data-link>Juice a coin with it <i class="arr">→</i></a>
+    <p class="dr-mint mono" id="drMint"></p>
+  </div>
+</aside>
+
+<div class="modal" id="modal" aria-hidden="true"><div class="md-bg" data-close></div><div class="md-panel" role="dialog" aria-modal="true"><button class="md-x" type="button" data-close aria-label="Close">×</button><div class="md-body" id="mdBody"></div></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="jbox" viewBox="2 0 17 24"><path fill="currentColor" d="M15 0h2v1h-2zM14 1h2v1h-2zM13 2h2v1h-2zM13 3h1v1h-1zM13 4h1v1h-1zM13 5h1v1h-1zM5 6h13v1h-13zM4 7h14v1h-14zM3 8h15v1h-15zM3 9h15v1h-15zM3 10h15v1h-15zM3 11h7v1h-7zM12 11h6v1h-6zM3 12h6v1h-6zM10 12h8v1h-8zM3 13h4v1h-4zM11 13h7v1h-7zM3 14h3v1h-3zM12 14h6v1h-6zM3 15h3v1h-3zM12 15h6v1h-6zM3 16h3v1h-3zM12 16h6v1h-6zM3 17h3v1h-3zM12 17h6v1h-6zM3 18h4v1h-4zM11 18h7v1h-7zM3 19h15v1h-15zM3 20h15v1h-15zM3 21h15v1h-15zM3 22h15v1h-15zM3 23h14v1h-14z"/><path fill="var(--jo,#ff6f12)" d="M7 13h4v1h-4zM6 14h6v1h-6zM6 15h6v1h-6zM6 16h6v1h-6zM6 17h6v1h-6zM7 18h4v1h-4z"/><path fill="var(--jg,#2fbf5b)" d="M10 11h2v1h-2zM9 12h1v1h-1z"/><path fill="rgba(0,0,0,.09)" d="M15 8h3v1h-3zM15 9h3v1h-3zM15 10h3v1h-3zM15 11h3v1h-3zM15 12h3v1h-3zM15 13h3v1h-3zM15 14h3v1h-3zM15 15h3v1h-3zM15 16h3v1h-3zM15 17h3v1h-3zM15 18h3v1h-3zM15 19h3v1h-3zM15 20h3v1h-3zM15 21h3v1h-3zM15 22h3v1h-3zM15 23h2v1h-2z"/></symbol><symbol id="jmono" viewBox="2 0 17 24"><path fill="currentColor" d="M15 0h2v1h-2zM14 1h2v1h-2zM13 2h2v1h-2zM13 3h1v1h-1zM13 4h1v1h-1zM13 5h1v1h-1zM5 6h13v1h-13zM4 7h14v1h-14zM3 8h15v1h-15zM3 9h15v1h-15zM3 10h15v1h-15zM3 11h7v1h-7zM12 11h6v1h-6zM3 12h6v1h-6zM10 12h8v1h-8zM3 13h4v1h-4zM11 13h7v1h-7zM3 14h3v1h-3zM12 14h6v1h-6zM3 15h3v1h-3zM12 15h6v1h-6zM3 16h3v1h-3zM12 16h6v1h-6zM3 17h3v1h-3zM12 17h6v1h-6zM3 18h4v1h-4zM11 18h7v1h-7zM3 19h15v1h-15zM3 20h15v1h-15zM3 21h15v1h-15zM3 22h15v1h-15zM3 23h14v1h-14z"/></symbol></defs></svg>
+<script type="module" src="/assets/js/main.js?v=1"></script>
+</body>
+</html>
