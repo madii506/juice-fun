@@ -34,19 +34,29 @@ function hero() {
   h.addEventListener('pointermove', e => { if (!PC || e.target.closest('a,button')) return; const on = PC.hit(e); if (on !== hov) { hov = on; h.style.cursor = on ? 'pointer' : ''; } }, { passive: true });
   h.addEventListener('pointerdown', e => { if (!PC || e.target.closest('a,button,.tape')) return; if (PC.hit(e)) { PC.squeeze(); hint.classList.add('gone'); } });
 }
-let PC_STARTED = false;
+let PC_STARTED = null;
+// the 3D box starts under the intro (while the screen is full of juice), so its first frame never stutters on screen;
+// it drops into view once the juice becomes the site
 async function startPC() {
-  if (PC_STARTED) return; PC_STARTED = true;
+  if (PC_STARTED) return PC_STARTED;
   const cv = $('#pc');
-  try {
-    if (!window.WebGLRenderingContext) throw new Error('no webgl');
-    const mod = await import('./box3d.js?v=2');
+  PC_STARTED = (async () => {
+    try {
+      if (!window.WebGLRenderingContext) throw new Error('no webgl');
+      const mod = await import('./box3d.js?v=2');
+      gsap.set(cv, { opacity: 0 });
+      PC = mod.start({ canvas: cv, lite: /[?&]shot\b/.test(location.search) });
+      if (LIST.length) feedBox(LIST);
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    } catch (e) { cv.replaceWith(Object.assign(document.createElement('img'), { src: '/assets/img/favicon-512.png', className: 'pc-fallback', alt: '' })); PC = null; }
+  })();
+  PC_STARTED.then(async () => {
     await (window.__intro || Promise.resolve());
-    PC = mod.start({ canvas: cv, lite: /[?&]shot\b/.test(location.search) });
-    if (LIST.length) feedBox(LIST);
-    if (!RM) gsap.fromTo(cv, { opacity: 0, y: -60 }, { opacity: 1, y: 0, duration: 1.1, ease: 'bounce.out', onStart: () => setTimeout(() => PC && PC.squeeze(), 650) }); else gsap.set(cv, { opacity: 1 });
-    setTimeout(() => $('#sqHint').classList.add('on'), 2600);
-  } catch (e) { cv.replaceWith(Object.assign(document.createElement('img'), { src: '/assets/img/favicon-512.png', className: 'pc-fallback', alt: '' })); PC = null; }
+    if (!PC) return;
+    if (!RM) gsap.fromTo('#pc', { opacity: 0, y: -60 }, { opacity: 1, y: 0, duration: 1.1, delay: .25, ease: 'bounce.out', onStart: () => setTimeout(() => PC && PC.squeeze(), 650) }); else gsap.set('#pc', { opacity: 1 });
+    setTimeout(() => $('#sqHint').classList.add('on'), 2800);
+  });
+  return PC_STARTED;
 }
 function feedBox(list) {
   if (!PC) return;
@@ -726,19 +736,28 @@ function navWatch() {
 
 export async function home() {
   const listP = stocks().catch(() => []);
-  hero(); startPC(); bubbles(); (window.__intro || Promise.resolve()).then(orbitIn);
+  const introOn = document.documentElement.classList.contains('intro');
+  hero(); bubbles();
   how(); why(); stocksSec(); split(); faq(); megaIn(); drops(); tilt($('.feats')); SQZ.init(); TODAY.init();
   revealAll($('#home'));
   magnetic();
   navWatch();
   juiceBand(); surprise(listP);
-  listP.then(async list => {
+  // everything that needs the live menu; with the intro on, this runs while the screen is full of juice
+  let filled = null;
+  const fill = () => filled || (filled = listP.then(async list => {
     LIST = list;
     $('#nStocks').textContent = list.length || '—';
     feedBox(list);
     orbit(list); tape(list); drawStocks(true); SPOT.setList(list); SHELF.setup(list); SQZ.setList(list); TODAY.setList(list); await calc(list).catch(e => console.error(e));
     ScrollTrigger.refresh();
-  });
+  }));
+  if (introOn) {
+    let prep = null;
+    window.__juicePrep = () => prep || (prep = Promise.all([fill(), startPC()]));
+    (window.__intro || Promise.resolve()).then(() => { window.__juicePrep(); orbitIn(); });
+  } else { fill(); startPC(); orbitIn(); }
   ScrollTrigger.refresh();
+  if (window.__homeSetupDone) window.__homeSetupDone();
   return listP;
 }
