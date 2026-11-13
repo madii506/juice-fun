@@ -107,7 +107,7 @@ function marquee(el, speed = .9) {
   gsap.ticker.add((t, dt) => { if (!vis) return; const v = lenis ? Math.min(40, Math.abs(lenis.velocity || 0)) : 0; x -= (hover ? .15 : speed + v * .6) * dt / 16; if (half && -x > half) x += half; el.style.transform = `translate3d(${x.toFixed(2)}px,0,0)`; });
 }
 function tape(list) {
-  const tr = $('#tape .tape-track');
+  const tr = $('#tape .tape-track'); if (!tr) return;
   const items = featured(list).slice(0, 26);
   if (!items.length) { tr.innerHTML = '<span class="ti">—</span>'; return; }
   const row = items.map(s => `<span class="ti" data-id="${esc(s.id)}">${lg(s)}<b>${esc(s.ticker)}</b><span class="p" data-p>${px(s.price)}</span><span class="chg ${chgClass(s.chg24)}" data-c>${pct(s.chg24)}</span><span class="lv">${s.maxLev || '—'}x</span></span>`).join('');

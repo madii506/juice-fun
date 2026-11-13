@@ -1,5 +1,6 @@
 // the intro: juice pours into the screen around the pixel juice box. The level follows what is really loading (fonts,
-// the live Hyperliquid menu, the 3D box); real company logos rise as bubbles; when the screen is full the juice becomes the site.
+// the live Hyperliquid menu, the 3D box). Real company logos from the live menu rain into the juice, splash and float
+// back up as bubbles; when the screen is full the juice becomes the site.
 // No text: just the pour. Click, tap or any key skips it.
 const CREAM = '#fff6ec', OR = '#ff6f12', OR2 = '#f25f05', JU = '#ffd23f', INK = '#2a1609';
 
@@ -17,8 +18,21 @@ export function runIntro({ tasks = [], logos = Promise.resolve([]) } = {}) {
 
   // logo bubbles (real company logos from the menu)
   const imgs = [];
-  logos.then(list => list.slice(0, 10).forEach(s => { const im = new Image(); im.onload = () => imgs.push({ im, tk: s.ticker, lev: s.lev }); im.src = '/api/logo?m=' + encodeURIComponent(s.mint); })).catch(() => {});
-  const bubbles = [], dots = [], drops = [];
+  logos.then(list => list.slice(0, 28).forEach(s => { const im = new Image(); im.onload = () => imgs.push({ im, tk: s.ticker }); im.src = '/api/logo?m=' + encodeURIComponent(s.mint); })).catch(() => {});
+  const bubbles = [], dots = [], drops = [], fallers = [];
+  let deck = [];
+  const nextLogo = () => { if (!deck.length) deck = imgs.slice().sort(() => Math.random() - .5); return deck.pop(); };
+  const R = () => (W < 700 ? 14 + Math.random() * 14 : 20 + Math.random() * 22);
+  function logo(x, y, r) { g.save(); g.beginPath(); g.arc(x, y, r + Math.max(2, r * .1), 0, 7); g.fillStyle = '#fff'; g.fill(); g.beginPath(); g.arc(x, y, r, 0, 7); g.clip(); g.drawImage(this.im, x - r, y - r, r * 2, r * 2); g.restore(); }
+  function drawBubbles(t, dt, lv, clipTop) {
+    for (const b of bubbles) {
+      b.vy = Math.max(b.rise, b.vy - 520 * dt); b.y += b.vy * dt; const x = b.x + Math.sin(t * 1.6 + b.p) * 10, top = clipTop ? surf(x, t, lv) : -1e9;
+      if (b.y - b.r < top + 2) { b.r *= .8; if (b.r < 4) b.dead = true; }
+      if (!clipTop && b.y < -b.r * 2) b.dead = true;
+      logo.call(b.k, x, b.y, b.r);
+    }
+    for (let i = bubbles.length - 1; i >= 0; i--) if (bubbles[i].dead) bubbles.splice(i, 1);
+  }
   let skip = false, t0 = performance.now(), level = 0, phase = 0, revealAt = 0, raf = 0, resolveDone;
   const finished = new Promise(r => { resolveDone = r; });
   const onSkip = () => { skip = true; };
@@ -72,18 +86,28 @@ export function runIntro({ tasks = [], logos = Promise.resolve([]) } = {}) {
     word('#ffffff', 0, sc, pop, OR);
     if (level > .12) {
       if (Math.random() < .5 && dots.length < 70) dots.push({ x: Math.random() * W, y: H + 10, r: 1.5 + Math.random() * 4, v: 40 + Math.random() * 90, p: Math.random() * 6 });
-      if (imgs.length && Math.random() < .045 && bubbles.length < 7) { const k = imgs[(Math.random() * imgs.length) | 0]; bubbles.push({ k, x: W * (.1 + Math.random() * .8), y: H + 40, r: 22 + Math.random() * 14, v: 70 + Math.random() * 70, p: Math.random() * 6 }); }
+      if (imgs.length && Math.random() < .07 && bubbles.length < 24) { const r = R(); bubbles.push({ k: nextLogo(), x: W * (.06 + Math.random() * .88), y: H + r + 10, r, vy: -60, rise: -(70 + Math.random() * 90), p: Math.random() * 6 }); }
     }
     const dt = 1 / 60;
     for (const d of dots) { d.y -= d.v * dt; const x = d.x + Math.sin(t * 2 + d.p) * 6; g.beginPath(); g.arc(x, d.y, d.r, 0, 7); g.fillStyle = 'rgba(255,255,255,.32)'; g.fill(); if (d.y < surf(x, t, level) + 4) d.dead = true; }
-    for (const b of bubbles) {
-      b.y -= b.v * dt; const x = b.x + Math.sin(t * 1.6 + b.p) * 10, top = surf(x, t, level);
-      if (b.y - b.r < top + 2) { b.r *= .82; if (b.r < 4) b.dead = true; }
-      g.save(); g.beginPath(); g.arc(x, b.y, b.r + 3, 0, 7); g.fillStyle = '#fff'; g.fill(); g.beginPath(); g.arc(x, b.y, b.r, 0, 7); g.clip(); g.drawImage(b.k.im, x - b.r, b.y - b.r, b.r * 2, b.r * 2); g.restore();
-    }
+    drawBubbles(t, dt, level, true);
     for (let i = dots.length - 1; i >= 0; i--) if (dots[i].dead) dots.splice(i, 1);
-    for (let i = bubbles.length - 1; i >= 0; i--) if (bubbles[i].dead) bubbles.splice(i, 1);
     g.restore();
+    // logos raining in with the pour: they splash into the juice and float back up as bubbles
+    if (phase === 0 && sy >= 1 && imgs.length && level < .98 && fallers.length < 12 && Math.random() < .16) {
+      const r = R(), x = Math.random() < .35 ? sx + (Math.random() - .5) * 30 : W * (.06 + Math.random() * .88);
+      fallers.push({ k: nextLogo(), x, y: -r - 10, vy: 120 + Math.random() * 220, r, spin: (Math.random() - .5) * .6 });
+    }
+    for (const f of fallers) {
+      f.vy += 900 * dt; f.y += f.vy * dt;
+      const top = surf(f.x, t, level);
+      if (f.y > top - f.r * .2) {
+        f.dead = true;
+        bubbles.push({ k: f.k, x: f.x, y: f.y, r: f.r, vy: Math.min(260, f.vy * .35), rise: -(60 + Math.random() * 80), p: Math.random() * 6 });
+        for (let i = 0; i < 6; i++) drops.push({ x: f.x, y: top, vx: (Math.random() - .5) * 320, vy: -140 - Math.random() * 260, r: 2 + Math.random() * 4 });
+      } else logo.call(f.k, f.x, f.y, f.r);
+    }
+    for (let i = fallers.length - 1; i >= 0; i--) if (fallers[i].dead) fallers.splice(i, 1);
     // splash drops above the surface
     for (const d of drops) { d.vy += 900 * dt; d.x += d.vx * dt; d.y += d.vy * dt; if (d.y > surf(d.x, t, level) + 6) d.dead = true; g.beginPath(); g.arc(d.x, d.y, d.r, 0, 7); g.fillStyle = OR; g.fill(); }
     for (let i = drops.length - 1; i >= 0; i--) if (drops[i].dead) drops.splice(i, 1);
@@ -92,6 +116,7 @@ export function runIntro({ tasks = [], logos = Promise.resolve([]) } = {}) {
     if (phase === 1) {
       const k = Math.min(1, (now - revealAt) / 650);
       g.fillStyle = OR; g.fillRect(0, 0, W, H);
+      drawBubbles(t, 1 / 60, 2, false);
       word('#ffffff', -k * H * .08, 1 + k * .18, 1 - k, OR);
       if (k >= 1) { cancelAnimationFrame(raf); el.remove(); removeEventListener('resize', size); }
     }
