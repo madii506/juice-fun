@@ -18,15 +18,15 @@
 <link rel="apple-touch-icon" href="/assets/img/favicon-180.png?v=2">
 <link rel="preload" href="/assets/fonts/idisp-black.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="modulepreload" href="/assets/js/main.js?v=2">
+<link rel="modulepreload" href="/assets/js/main.js?v=3">
 <link rel="modulepreload" href="/assets/js/vendor-motion.js?v=1">
 <link rel="modulepreload" href="/assets/js/core.js">
 <link rel="modulepreload" href="/assets/js/motion.js">
-<link rel="modulepreload" href="/assets/js/home.js?v=2">
+<link rel="modulepreload" href="/assets/js/home.js?v=3">
 <link rel="modulepreload" href="/assets/js/drawer.js">
 <link rel="modulepreload" href="/assets/js/box3d.js?v=2">
-<link rel="modulepreload" href="/assets/js/intro.js?v=2">
-<link rel="stylesheet" href="/assets/css/app.css?v=2">
+<link rel="modulepreload" href="/assets/js/intro.js?v=3">
+<link rel="stylesheet" href="/assets/css/app.css?v=3">
 </head>
 <body>
 <div id="jintro" aria-hidden="true"><canvas></canvas></div>
@@ -35,7 +35,7 @@
 <header id="nav">
   <a class="brand" href="/" data-link aria-label="JUICE home"><svg class="jb" viewBox="2 0 17 24" aria-hidden="true"><use href="#jbox"/></svg><span>juice</span></a>
   <nav class="links" aria-label="Sections">
-    <a href="/#how" data-sec>How it works</a><a href="/#stocks" data-sec>The menu</a><a href="/#today" data-sec>Today</a><a href="/#live" data-sec>The shelf</a><a href="/#juice" data-sec>$JUICE</a><a href="/#faq" data-sec>FAQ</a>
+    <a href="/#how" data-sec>How it works</a><a href="/#stocks" data-sec>The menu</a><a href="/#today" data-sec>Today</a><a href="/#live" data-sec>The shelf</a><a href="/#faq" data-sec>FAQ</a>
   </nav>
   <div class="nav-r">
     <a class="nbtn nx" id="navX" href="#" target="_blank" rel="noopener" aria-label="JUICE on X" hidden><svg viewBox="0 0 24 24"><path fill="currentColor" d="M17.8 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.3-8.3L2 3h6.4l4.4 5.8zm-1.1 16.2h1.7L7.4 4.7H5.6z"/></svg></a>
@@ -44,7 +44,7 @@
   </div>
 </header>
 <div class="msheet" id="mSheet" hidden>
-  <nav class="ms-links" aria-label="Sections"><a class="ml" href="/#how">How it works</a><a class="ml" href="/#squeeze">The squeeze</a><a class="ml" href="/#stocks">The menu</a><a class="ml" href="/#today">Today</a><a class="ml" href="/#split">Concentrate</a><a class="ml" href="/#live">The shelf</a><a class="ml" href="/#juice">$JUICE</a><a class="ml" href="/#faq">FAQ</a></nav>
+  <nav class="ms-links" aria-label="Sections"><a class="ml" href="/#how">How it works</a><a class="ml" href="/#squeeze">The squeeze</a><a class="ml" href="/#stocks">The menu</a><a class="ml" href="/#today">Today</a><a class="ml" href="/#split">Concentrate</a><a class="ml" href="/#live">The shelf</a><a class="ml" href="/#faq">FAQ</a></nav>
   <div class="ms-cta"><a class="btn btn-white btn-lg" href="/launch" data-link>Launch a coin <i class="arr">→</i></a></div>
 </div>
 
@@ -69,7 +69,6 @@
       </ul>
     </div>
     <p class="squeeze-hint mono" id="sqHint" aria-hidden="true">click the box</p>
-    <div class="tape" id="tape" aria-label="Live stock perp prices"><div class="tape-track"></div></div>
   </section>
 
   <!-- 01 how it works -->
@@ -338,6 +337,6 @@
 <div class="modal" id="modal" aria-hidden="true"><div class="md-bg" data-close></div><div class="md-panel" role="dialog" aria-modal="true"><button class="md-x" type="button" data-close aria-label="Close">×</button><div class="md-body" id="mdBody"></div></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="jbox" viewBox="2 0 17 24"><path fill="currentColor" d="M15 0h2v1h-2zM14 1h2v1h-2zM13 2h2v1h-2zM13 3h1v1h-1zM13 4h1v1h-1zM13 5h1v1h-1zM5 6h13v1h-13zM4 7h14v1h-14zM3 8h15v1h-15zM3 9h15v1h-15zM3 10h15v1h-15zM3 11h7v1h-7zM12 11h6v1h-6zM3 12h6v1h-6zM10 12h8v1h-8zM3 13h4v1h-4zM11 13h7v1h-7zM3 14h3v1h-3zM12 14h6v1h-6zM3 15h3v1h-3zM12 15h6v1h-6zM3 16h3v1h-3zM12 16h6v1h-6zM3 17h3v1h-3zM12 17h6v1h-6zM3 18h4v1h-4zM11 18h7v1h-7zM3 19h15v1h-15zM3 20h15v1h-15zM3 21h15v1h-15zM3 22h15v1h-15zM3 23h14v1h-14z"/><path fill="var(--jo,#ff6f12)" d="M7 13h4v1h-4zM6 14h6v1h-6zM6 15h6v1h-6zM6 16h6v1h-6zM6 17h6v1h-6zM7 18h4v1h-4z"/><path fill="var(--jg,#2fbf5b)" d="M10 11h2v1h-2zM9 12h1v1h-1z"/><path fill="rgba(0,0,0,.09)" d="M15 8h3v1h-3zM15 9h3v1h-3zM15 10h3v1h-3zM15 11h3v1h-3zM15 12h3v1h-3zM15 13h3v1h-3zM15 14h3v1h-3zM15 15h3v1h-3zM15 16h3v1h-3zM15 17h3v1h-3zM15 18h3v1h-3zM15 19h3v1h-3zM15 20h3v1h-3zM15 21h3v1h-3zM15 22h3v1h-3zM15 23h2v1h-2z"/></symbol><symbol id="jmono" viewBox="2 0 17 24"><path fill="currentColor" d="M15 0h2v1h-2zM14 1h2v1h-2zM13 2h2v1h-2zM13 3h1v1h-1zM13 4h1v1h-1zM13 5h1v1h-1zM5 6h13v1h-13zM4 7h14v1h-14zM3 8h15v1h-15zM3 9h15v1h-15zM3 10h15v1h-15zM3 11h7v1h-7zM12 11h6v1h-6zM3 12h6v1h-6zM10 12h8v1h-8zM3 13h4v1h-4zM11 13h7v1h-7zM3 14h3v1h-3zM12 14h6v1h-6zM3 15h3v1h-3zM12 15h6v1h-6zM3 16h3v1h-3zM12 16h6v1h-6zM3 17h3v1h-3zM12 17h6v1h-6zM3 18h4v1h-4zM11 18h7v1h-7zM3 19h15v1h-15zM3 20h15v1h-15zM3 21h15v1h-15zM3 22h15v1h-15zM3 23h14v1h-14z"/></symbol></defs></svg>
-<script type="module" src="/assets/js/main.js?v=2"></script>
+<script type="module" src="/assets/js/main.js?v=3"></script>
 </body>
 </html>
