@@ -1134,7 +1134,7 @@ input[type=range]::-moz-range-thumb{background:var(--yellow);box-shadow:0 0 0 6p
 
 /* ================================================================ JUICE v2: intro, squeeze story, today board */
 /* the intro: juice pours into the screen */
-#jintro{position:fixed;inset:0;z-index:95;background:#fff6ec;cursor:pointer;transition:opacity .65s ease;-webkit-tap-highlight-color:transparent}
+#jintro{position:fixed;inset:0;z-index:95;background:#fff6ec;cursor:pointer;transition:opacity 1.05s cubic-bezier(.65,0,.35,1);-webkit-tap-highlight-color:transparent}
 #jintro canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 #jintro.out{opacity:0;pointer-events:none}
 .ji-log{position:absolute;z-index:2;left:clamp(16px,3vw,40px);bottom:clamp(18px,3vw,36px);margin:0;padding:0;list-style:none;font:600 12px/1.7 JBM,ui-monospace,monospace;color:#2a1609;pointer-events:none;transition:color .4s}
