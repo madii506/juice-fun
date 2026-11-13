@@ -1210,3 +1210,6 @@ html.intro .hero .rv,html.intro .h-hero .ln>span,html.intro #nav,html.intro .tap
 .td-c.sp .td-svg{transform:rotate(-12deg)}
 .td-note{margin-top:14px;font-size:11.5px;opacity:.8}
 @media (max-width:760px){.td-sum{grid-template-columns:1fr 1fr}.td-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* the scrollbar's space is always reserved, so nothing shifts when the intro hands over */
+html{scrollbar-gutter:stable}
